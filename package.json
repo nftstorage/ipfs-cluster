@@ -1,0 +1,24 @@
+{
+  "name": "@nftstorage/ipfs-cluster",
+  "version": "0.0.0",
+  "description": "A zero-dependency client to the IPFS Cluster HTTP API, built for the browser.",
+  "main": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "Alan Shaw",
+  "license": "(Apache-2.0 AND MIT)",
+  "devDependencies": {
+    "@web-std/fetch": "^1.0.0",
+    "@web-std/file": "^1.0.1",
+    "@web-std/form-data": "^2.0.0",
+    "standard": "^16.0.3"
+  },
+  "standard": {
+    "ignore": [
+      "*.ts"
+    ]
+  }
+}
