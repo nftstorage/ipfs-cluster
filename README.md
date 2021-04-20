@@ -1,5 +1,7 @@
 # ipfs-cluster
 
+[![dependencies Status](https://status.david-dm.org/gh/nftstorage/ipfs-cluster.svg)](https://david-dm.org/nftstorage/ipfs-cluster)
+
 A zero-dependency client to the [IPFS Cluster](https://cluster.ipfs.io/) HTTP API, built for the browser.
 
 ## Install
@@ -71,6 +73,8 @@ const dir = await cluster.addDirectory(file)
 
 for (const entry of dir) {
   console.log(entry.cid)
+  // bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu
+  // bafybeidsnna57jpm2ttwaydwak25qpkxafrg4cnrjsfqipbcqxlsfobjje
 }
 ```
 
@@ -89,7 +93,7 @@ Untracks a CID from cluster.
 
 ```js
 const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
-const { cid } = await cluster.pin(cid)
+await cluster.unpin(cid)
 ```
 
 ### `status`
@@ -102,5 +106,17 @@ const status = await cluster.status(cid)
 
 for (const [clusterPeerID, pinInfo] of Object.entries(status.peerMap)) {
   console.log(`${clusterPeerID}: ${pinInfo.status}`)
+  // e.g.
+  // 12D3KooWAjKw14hMUo7wdyEu9KwogrUFCCMiQZApgZ4zMcvtcacj: pinned
+  // 12D3KooWKiebn7GqPvjqjKARnm47Xoez6f1civBEWxef3u5G6UdM: pinned
+  // 12D3KooWLKdPdFx5UpPNwoVmMXsLULCDegAqXZ7RAgpKuPSMKoSS: pinned
 }
 ```
+
+## Contribute
+
+Feel free to dive in! [Open an issue](https://github.com/nftstorage/ipfs-cluster/issues/new) or submit PRs.
+
+## License
+
+[APACHE-2.0](LICENSE-APACHE) AND [MIT](LICENSE-MIT)

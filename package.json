@@ -6,7 +6,8 @@
   "type": "module",
   "types": "index.d.ts",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "lint": "standard"
   },
   "author": "Alan Shaw",
   "license": "(Apache-2.0 AND MIT)",
