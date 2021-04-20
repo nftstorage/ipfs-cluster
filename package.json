@@ -20,5 +20,20 @@
     "ignore": [
       "*.ts"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nftstorage/ipfs-cluster.git"
+  },
+  "keywords": [
+    "ipfs",
+    "cluster",
+    "client",
+    "http",
+    "api"
+  ],
+  "bugs": {
+    "url": "https://github.com/nftstorage/ipfs-cluster/issues"
+  },
+  "homepage": "https://github.com/nftstorage/ipfs-cluster#readme"
 }
