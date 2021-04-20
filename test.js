@@ -10,11 +10,10 @@ Object.assign(global, { fetch, File, Blob, FormData })
 // https://cluster.ipfs.io/documentation/quickstart/
 // TODO: how to run on CI?
 const URL = 'http://127.0.0.1:9094'
-const AUTH = ''
 
 const tests = {
   async 'adds a file' () {
-    const cluster = new Cluster(URL, { auth: AUTH })
+    const cluster = new Cluster(URL)
     const file = new File(['foo'], 'foo.txt')
     const result = await cluster.add(file)
     console.log(result)
@@ -24,7 +23,7 @@ const tests = {
   },
 
   async 'adds a directory of files' () {
-    const cluster = new Cluster(URL, { auth: AUTH })
+    const cluster = new Cluster(URL)
     const files = [
       new File(['foo'], 'foo.txt'),
       new File(['bar'], 'bar.txt')
@@ -47,7 +46,7 @@ const tests = {
   },
 
   async 'pins a CID' () {
-    const cluster = new Cluster(URL, { auth: AUTH })
+    const cluster = new Cluster(URL)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const result = await cluster.pin(cid, { name: 'testy', metadata: { alan: 'tests' } })
@@ -58,7 +57,7 @@ const tests = {
   },
 
   async 'unpins a CID' () {
-    const cluster = new Cluster(URL, { auth: AUTH })
+    const cluster = new Cluster(URL)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const result = await cluster.unpin(cid)
@@ -67,7 +66,7 @@ const tests = {
   },
 
   async 'gets pin status' () {
-    const cluster = new Cluster(URL, { auth: AUTH })
+    const cluster = new Cluster(URL)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const status = await cluster.status(cid)

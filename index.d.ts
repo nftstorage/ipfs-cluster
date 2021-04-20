@@ -162,7 +162,7 @@ export enum TrackerStatus {
 }
 
 export class Cluster {
-  constructor (url: URL|string, options?: { auth: string })
+  constructor (url: URL|string, options?: { headers?: Record<string, string> })
   add (file: File|Blob, options?: PinOptions): Promise<AddResponse>
   addDirectory (file: Iterable<File|Blob>, options?: PinOptions): Promise<AddDirectoryResponse>
   pin (cid: string, options?: PinOptions): Promise<PinResponse>

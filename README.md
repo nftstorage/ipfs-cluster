@@ -20,7 +20,7 @@ Example:
 ```js
 import { Cluster } from 'https://cdn.skypack.dev/@nftstorage/ipfs-cluster'
 
-const cluster = new Cluster('https://your-cluster-domain.com', { auth: 'TOKEN' })
+const cluster = new Cluster('https://your-cluster-domain.com')
 
 const file = new File(['foo'], 'foo.txt')
 const { cid } = await cluster.add(file)
@@ -49,7 +49,10 @@ Create a new instance of the cluster client.
 
 ```js
 import { Cluster } from '@nftstorage/ipfs-cluster'
-const cluster = new Cluster('https://your-cluster-domain.com', { auth: 'TOKEN' })
+const cluster = new Cluster('https://your-cluster-domain.com', {
+  // optional custom headers for e.g. auth
+  headers: { Authorization: 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==' }
+})
 ```
 
 ### `add`

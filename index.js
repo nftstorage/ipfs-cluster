@@ -3,7 +3,7 @@
 export class Cluster {
   /**
    * @param {URL|string} url Cluster HTTP API root URL.
-   * @param {{ auth: string }} [options]
+   * @param {{ headers?: Record<string, string> }} [options]
    */
   constructor (url, options) {
     /**
@@ -16,14 +16,6 @@ export class Cluster {
      * @readonly
      */
     this.options = options || {}
-  }
-
-  /**
-   * @private
-   * @returns {Record<string, string>}
-   */
-  authHeaders () {
-    return this.options.auth ? { Authorization: `Basic ${this.options.auth}` } : {}
   }
 
   /**
@@ -43,7 +35,7 @@ export class Cluster {
     url.searchParams.set('cid-version', 1)
     setPinOptions(options, url.searchParams)
 
-    const headers = this.authHeaders()
+    const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'POST', headers, body })
 
     if (!response.ok) {
@@ -74,7 +66,7 @@ export class Cluster {
     url.searchParams.set('wrap-with-directory', true)
     setPinOptions(options, url.searchParams)
 
-    const headers = this.authHeaders()
+    const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'POST', headers, body })
 
     if (!response.ok) {
@@ -98,7 +90,7 @@ export class Cluster {
     const url = new URL(path, this.url)
     setPinOptions(options, url.searchParams)
 
-    const headers = this.authHeaders()
+    const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'POST', headers })
 
     if (!response.ok) {
@@ -131,7 +123,7 @@ export class Cluster {
   async unpin (cid) {
     const path = cid.startsWith('/') ? `/pins${cid}` : `/pins/${cid}`
     const url = new URL(path, this.url)
-    const headers = this.authHeaders()
+    const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'POST', headers })
 
     if (!response.ok) {
@@ -170,7 +162,7 @@ export class Cluster {
       url.searchParams.set('local', options.local)
     }
 
-    const headers = this.authHeaders()
+    const headers = this.options.headers
     const response = await fetch(url.toString(), { headers })
 
     if (!response.ok) {
