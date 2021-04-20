@@ -41,7 +41,7 @@ Object.assign(global, { fetch, File, Blob, FormData })
 
 ## API
 
-This library is **WIP** and not _all_ cluster HTTP API methods are available yet.
+This library is **WIP** and not _all_ cluster HTTP API methods are available yet. Please see the [typescript types](https://github.com/nftstorage/ipfs-cluster/blob/main/index.d.ts) for full parameter and return types.
 
 ### Constructor
 
@@ -82,6 +82,15 @@ for (const entry of dir) {
 }
 ```
 
+### `allocation`
+
+Returns the current allocation for a given CID.
+
+```js
+const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
+const allocation = await cluster.allocation(cid)
+```
+
 ### `pin`
 
 Tracks a CID with the given replication factor and a name for human-friendliness.
@@ -89,15 +98,6 @@ Tracks a CID with the given replication factor and a name for human-friendliness
 ```js
 const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
 const { cid } = await cluster.pin(cid)
-```
-
-### `unpin`
-
-Untracks a CID from cluster.
-
-```js
-const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
-await cluster.unpin(cid)
 ```
 
 ### `status`
@@ -115,6 +115,15 @@ for (const [clusterPeerID, pinInfo] of Object.entries(status.peerMap)) {
   // 12D3KooWKiebn7GqPvjqjKARnm47Xoez6f1civBEWxef3u5G6UdM: pinned
   // 12D3KooWLKdPdFx5UpPNwoVmMXsLULCDegAqXZ7RAgpKuPSMKoSS: pinned
 }
+```
+
+### `unpin`
+
+Untracks a CID from cluster.
+
+```js
+const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
+await cluster.unpin(cid)
 ```
 
 ## Contribute

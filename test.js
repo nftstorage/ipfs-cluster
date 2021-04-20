@@ -49,11 +49,13 @@ const tests = {
     const cluster = new Cluster(URL)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
-    const result = await cluster.pin(cid, { name: 'testy', metadata: { alan: 'tests' } })
+    const name = `name-${Date.now()}`
+    const metadata = { meta: `test-${Date.now()}` }
+    const result = await cluster.pin(cid, { name, metadata })
     console.log(result)
     assert.strictEqual(result.cid, cid)
-    assert.strictEqual(result.name, 'testy')
-    assert.strictEqual(result.metadata.alan, 'tests')
+    assert.strictEqual(result.name, name)
+    assert.deepStrictEqual(result.metadata, metadata)
   },
 
   async 'unpins a CID' () {
@@ -74,8 +76,18 @@ const tests = {
 
     assert.strictEqual(status.cid, cid)
     for (const pinInfo of Object.values(status.peerMap)) {
-      assert.strictEqual(pinInfo.status, 'pinned')
+      assert(['pinning', 'pinned'].includes(pinInfo.status))
     }
+  },
+
+  async 'gets pin allocation' () {
+    const cluster = new Cluster(URL)
+    const file = new File(['foo'], 'foo.txt')
+    const metadata = { meta: `test-${Date.now()}` }
+    const { cid } = await cluster.add(file, { metadata })
+    const allocation = await cluster.allocation(cid)
+    console.log(allocation)
+    assert.deepStrictEqual(allocation.metadata, metadata)
   }
 }
 

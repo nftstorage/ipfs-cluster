@@ -98,22 +98,7 @@ export class Cluster {
     }
 
     const data = await response.json()
-    return {
-      replicationFactorMin: data.replication_factor_min,
-      replicationFactorMax: data.replication_factor_max,
-      name: data.name,
-      mode: data.mode,
-      shardSize: data.shard_size,
-      userAllocations: data.user_allocations,
-      expireAt: new Date(data.expire_at),
-      metadata: data.metadata,
-      pinUpdate: data.pin_update,
-      cid: data.cid['/'],
-      type: data.type,
-      allocations: data.allocations,
-      maxDepth: data.max_depth,
-      reference: data.reference
-    }
+    return toPinResponse(data)
   }
 
   /**
@@ -131,22 +116,7 @@ export class Cluster {
     }
 
     const data = await response.json()
-    return {
-      replicationFactorMin: data.replication_factor_min,
-      replicationFactorMax: data.replication_factor_max,
-      name: data.name,
-      mode: data.mode,
-      shardSize: data.shard_size,
-      userAllocations: data.user_allocations,
-      expireAt: new Date(data.expire_at),
-      metadata: data.metadata,
-      pinUpdate: data.pin_update,
-      cid: data.cid['/'],
-      type: data.type,
-      allocations: data.allocations,
-      maxDepth: data.max_depth,
-      reference: data.reference
-    }
+    return toPinResponse(data)
   }
 
   /**
@@ -178,6 +148,23 @@ export class Cluster {
     }
 
     return { cid: data.cid['/'], name: data.name, peerMap }
+  }
+
+  /**
+   * @param {string} cid The CID to get pin status information for.
+   * @returns {Promise<import('./index').PinResponse>}
+   */
+  async allocation (cid) {
+    const url = new URL(`/allocations/${encodeURIComponent(cid)}`, this.url)
+    const headers = this.options.headers
+    const response = await fetch(url.toString(), { headers })
+
+    if (!response.ok) {
+      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+    }
+
+    const data = await response.json()
+    return toPinResponse(data)
   }
 }
 
@@ -217,5 +204,28 @@ function setPinOptions (options, searchParams) {
   }
   if (options.pinUpdate != null) {
     searchParams.set('pin_update', options.pinUpdate)
+  }
+}
+
+/**
+ * @param {any} data
+ * @returns {import('./index').PinResponse}
+ */
+function toPinResponse (data) {
+  return {
+    replicationFactorMin: data.replication_factor_min,
+    replicationFactorMax: data.replication_factor_max,
+    name: data.name,
+    mode: data.mode,
+    shardSize: data.shard_size,
+    userAllocations: data.user_allocations,
+    expireAt: new Date(data.expire_at),
+    metadata: data.metadata,
+    pinUpdate: data.pin_update,
+    cid: data.cid['/'],
+    type: data.type,
+    allocations: data.allocations,
+    maxDepth: data.max_depth,
+    reference: data.reference
   }
 }

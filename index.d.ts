@@ -1,3 +1,13 @@
+export class Cluster {
+  constructor (url: URL|string, options?: { headers?: Record<string, string> })
+  add (file: File|Blob, options?: PinOptions): Promise<AddResponse>
+  addDirectory (file: Iterable<File|Blob>, options?: PinOptions): Promise<AddDirectoryResponse>
+  pin (cid: string, options?: PinOptions): Promise<PinResponse>
+  unpin (cid: string): Promise<PinResponse>
+  status (cid: string, options?: StatusOptions): Promise<StatusResponse>
+  allocation (cid: string): Promise<PinResponse>
+}
+
 export type AddResponse = {
   cid: string
   name?: string
@@ -11,10 +21,7 @@ export type PinOptions = {
   replicationFactorMin?: number
   replicationFactorMax?: number
   name?: string
-  /**
-   * 0 = recursive, 1 = direct
-   */
-  mode?: 0|1
+  mode?: 'recursive'|'direct'
   shardSize?: number
   /**
    * The peers to which this pin should be allocated.
@@ -60,7 +67,7 @@ export type PinResponse = {
   replicationFactorMin: number
   replicationFactorMax: number
   name: string
-  mode: 0|1
+  mode: 'recursive'|'direct'
   shardSize: number
   /**
    * The peers to which this pin is allocated.
@@ -159,13 +166,4 @@ export enum TrackerStatus {
    * in a cluster dag
    */
   SHARDED = 'sharded'
-}
-
-export class Cluster {
-  constructor (url: URL|string, options?: { headers?: Record<string, string> })
-  add (file: File|Blob, options?: PinOptions): Promise<AddResponse>
-  addDirectory (file: Iterable<File|Blob>, options?: PinOptions): Promise<AddDirectoryResponse>
-  pin (cid: string, options?: PinOptions): Promise<PinResponse>
-  unpin (cid: string): Promise<PinResponse>
-  status (cid: string, options?: StatusOptions): Promise<StatusResponse>
 }
