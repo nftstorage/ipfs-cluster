@@ -20,7 +20,8 @@ import { Cluster } from 'https://cdn.skypack.dev/@nftstorage/ipfs-cluster'
 const cluster = new Cluster('https://your-cluster-domain.com', { auth: 'TOKEN' })
 
 const file = new File(['foo'], 'foo.txt')
-const { Hash } = await cluster.add(file)
+const { cid } = await cluster.add(file)
+console.log(cid) // bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu
 ```
 
 ### Using in Node.js
