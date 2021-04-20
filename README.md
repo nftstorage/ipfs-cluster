@@ -2,6 +2,7 @@
 
 [![dependencies Status](https://status.david-dm.org/gh/nftstorage/ipfs-cluster.svg)](https://david-dm.org/nftstorage/ipfs-cluster)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![minzip size](https://badgen.net/bundlephobia/minzip/@nftstorage/ipfs-cluster)](https://bundlephobia.com/result?p=@nftstorage/ipfs-cluster)
 
 A zero-dependency client to the [IPFS Cluster](https://cluster.ipfs.io/) HTTP API, built for the browser.
 
