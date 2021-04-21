@@ -109,7 +109,7 @@ export class Cluster {
     const path = cid.startsWith('/') ? `/pins${cid}` : `/pins/${cid}`
     const url = new URL(path, this.url)
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { method: 'POST', headers })
+    const response = await fetch(url.toString(), { method: 'DELETE', headers })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
