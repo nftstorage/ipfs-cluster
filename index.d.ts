@@ -6,6 +6,7 @@ export class Cluster {
   unpin (cid: string): Promise<PinResponse>
   status (cid: string, options?: StatusOptions): Promise<StatusResponse>
   allocation (cid: string): Promise<PinResponse>
+  recover (cid: string, options?: RecoverOptions): Promise<StatusResponse>
 }
 
 export type AddResponse = {
@@ -102,6 +103,8 @@ export type PinResponse = {
 export type StatusOptions = {
   local?: boolean
 }
+
+export type RecoverOptions = StatusOptions
 
 export type StatusResponse = {
   cid: string

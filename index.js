@@ -166,6 +166,37 @@ export class Cluster {
     const data = await response.json()
     return toPinResponse(data)
   }
+
+  /**
+   * @param {string} cid The CID to get pin status information for.
+   * @param {import('./index').RecoverOptions} [options]
+   * @returns {Promise<import('./index').StatusResponse>}
+   */
+  async recover (cid, options) {
+    const url = new URL(`/pins/${encodeURIComponent(cid)}/recover`, this.url)
+
+    options = options || {}
+    if (options.local != null) {
+      url.searchParams.set('local', options.local)
+    }
+
+    const headers = this.options.headers
+    const response = await fetch(url.toString(), { method: 'POST', headers })
+
+    if (!response.ok) {
+      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+    }
+
+    const data = await response.json()
+    let peerMap = data.peer_map
+    if (peerMap) {
+      peerMap = Object.fromEntries(Object.entries(peerMap).map(([k, v]) => (
+        [k, { peerName: v.peername, status: v.status, timestamp: new Date(v.timestamp), error: v.error }]
+      )))
+    }
+
+    return { cid: data.cid['/'], name: data.name, peerMap }
+  }
 }
 
 /**

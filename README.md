@@ -101,6 +101,15 @@ const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
 const { cid } = await cluster.pin(cid)
 ```
 
+### `recover`
+
+Re-triggers pin or unpin IPFS operations for a CID in error state.
+
+```js
+const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
+const { cid } = await cluster.recover(cid)
+```
+
 ### `status`
 
 Returns the current IPFS state for a given CID.

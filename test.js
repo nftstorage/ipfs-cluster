@@ -58,15 +58,6 @@ const tests = {
     assert.deepStrictEqual(result.metadata, metadata)
   },
 
-  async 'unpins a CID' () {
-    const cluster = new Cluster(URL)
-    const file = new File(['foo'], 'foo.txt')
-    const { cid } = await cluster.add(file)
-    const result = await cluster.unpin(cid)
-    console.log(result)
-    // TODO: is there something we can assert on in the response?
-  },
-
   async 'gets pin status' () {
     const cluster = new Cluster(URL)
     const file = new File(['foo'], 'foo.txt')
@@ -88,6 +79,28 @@ const tests = {
     const allocation = await cluster.allocation(cid)
     console.log(allocation)
     assert.deepStrictEqual(allocation.metadata, metadata)
+  },
+
+  async 'recovers an errored pin' () {
+    const cluster = new Cluster(URL)
+    const file = new File(['foo'], 'foo.txt')
+    const { cid } = await cluster.add(file)
+    const status = await cluster.recover(cid)
+    console.log(status)
+
+    assert.strictEqual(status.cid, cid)
+    for (const pinInfo of Object.values(status.peerMap)) {
+      assert(['pinning', 'pinned'].includes(pinInfo.status))
+    }
+  },
+
+  async 'unpins a CID' () {
+    const cluster = new Cluster(URL)
+    const file = new File(['foo'], 'foo.txt')
+    const { cid } = await cluster.add(file)
+    const result = await cluster.unpin(cid)
+    console.log(result)
+    // TODO: is there something we can assert on in the response?
   }
 }
 
