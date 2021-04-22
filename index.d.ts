@@ -37,31 +37,31 @@ export enum PinType {
   /**
    * Bad type showing up anywhere indicates a bug
    */
-	BAD = 1,
-	/**
+  BAD = 1,
+  /**
    * Data is a regular, non-sharded pin. It is pinned recursively.
    * It has no associated reference.
    */
-	DATA = 2,
+  DATA = 2,
   /**
    * Meta tracks the original CID of a sharded DAG. Its Reference points to the
    * Cluster DAG CID.
    */
-	META = 3,
+  META = 3,
   /**
    * ClusterDAG pins carry the CID of the root node that points to all the
    * shard-root-nodes of the shards in which a DAG has been divided. Its
    * Reference carries the MetaType CID.
    * ClusterDAGType pins are pinned directly everywhere.
    */
-	CLUSTER_DAG = 4,
+  CLUSTER_DAG = 4,
   /**
    * Shard pins carry the root CID of a shard, which points to individual blocks
    * on the original DAG that the user is adding, which has been sharded. They
    * carry a Reference to the previous shard. ShardTypes are pinned with
    * MaxDepth=1 (root and direct children only).
    */
-	SHARD = 5
+  SHARD = 5
 }
 
 export type PinResponse = {
