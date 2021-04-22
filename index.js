@@ -31,7 +31,7 @@ export class Cluster {
     const body = new FormData()
     body.append('file', file, file.name)
 
-    const url = new URL('/add', this.url)
+    const url = new URL('add', this.url)
     url.searchParams.set('cid-version', 1)
     setPinOptions(options, url.searchParams)
 
@@ -61,7 +61,7 @@ export class Cluster {
       body.append('file', f, f.name)
     }
 
-    const url = new URL('/add', this.url)
+    const url = new URL('add', this.url)
     url.searchParams.set('cid-version', 1)
     url.searchParams.set('wrap-with-directory', true)
     setPinOptions(options, url.searchParams)
@@ -86,7 +86,7 @@ export class Cluster {
    * @returns {Promise<import('./index').PinResponse>}
    */
   async pin (cid, options) {
-    const path = cid.startsWith('/') ? `/pins${cid}` : `/pins/${cid}`
+    const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
     const url = new URL(path, this.url)
     setPinOptions(options, url.searchParams)
 
@@ -106,7 +106,7 @@ export class Cluster {
    * @returns {Promise<import('./index').PinResponse>}
    */
   async unpin (cid) {
-    const path = cid.startsWith('/') ? `/pins${cid}` : `/pins/${cid}`
+    const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
     const url = new URL(path, this.url)
     const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'DELETE', headers })
@@ -125,7 +125,7 @@ export class Cluster {
    * @returns {Promise<import('./index').StatusResponse>}
    */
   async status (cid, options) {
-    const url = new URL(`/pins/${encodeURIComponent(cid)}`, this.url)
+    const url = new URL(`pins/${encodeURIComponent(cid)}`, this.url)
 
     options = options || {}
     if (options.local != null) {
@@ -155,7 +155,7 @@ export class Cluster {
    * @returns {Promise<import('./index').PinResponse>}
    */
   async allocation (cid) {
-    const url = new URL(`/allocations/${encodeURIComponent(cid)}`, this.url)
+    const url = new URL(`allocations/${encodeURIComponent(cid)}`, this.url)
     const headers = this.options.headers
     const response = await fetch(url.toString(), { headers })
 
@@ -173,7 +173,7 @@ export class Cluster {
    * @returns {Promise<import('./index').StatusResponse>}
    */
   async recover (cid, options) {
-    const url = new URL(`/pins/${encodeURIComponent(cid)}/recover`, this.url)
+    const url = new URL(`pins/${encodeURIComponent(cid)}/recover`, this.url)
 
     options = options || {}
     if (options.local != null) {
