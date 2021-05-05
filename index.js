@@ -35,6 +35,10 @@ export class Cluster {
     url.searchParams.set('cid-version', 1)
     setPinOptions(options, url.searchParams)
 
+    if (file.type === 'application/car') {
+      url.searchParams.set('format', 'car')
+    }
+
     const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'POST', headers, body })
 

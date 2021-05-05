@@ -15,7 +15,10 @@
     "@web-std/fetch": "^1.0.0",
     "@web-std/file": "^1.0.1",
     "@web-std/form-data": "^2.0.0",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "@ipld/car": "^1.0.1",
+    "multiformats": "^7.0.0",
+    "@ipld/dag-cbor": "^5.0.0"
   },
   "standard": {
     "ignore": [
