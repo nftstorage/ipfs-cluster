@@ -65,6 +65,13 @@ const file = new File(['foo'], 'foo.txt')
 const { cid } = await cluster.add(file)
 ```
 
+Alternatively you can import data from a car (Content Addressable aRchive) file:
+
+```js
+const car = new Blob(carFileData, { type: 'application/car' })
+const { cid } = await cluster.add(car)
+```
+
 ### `addDirectory`
 
 Imports multiple files to the cluster. First argument must be an array of `File` or `Blob`.
