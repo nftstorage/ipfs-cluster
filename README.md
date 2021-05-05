@@ -65,12 +65,14 @@ const file = new File(['foo'], 'foo.txt')
 const { cid } = await cluster.add(file)
 ```
 
-Alternatively you can import data from a car (Content Addressable aRchive) file:
+Alternatively you can import data from a [CAR (Content Addressable aRchive)](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md) file:
 
 ```js
 const car = new Blob(carFileData, { type: 'application/car' })
 const { cid } = await cluster.add(car)
 ```
+
+[More information on reading and writing CAR files in JS](https://github.com/ipld/js-car#readme).
 
 ### `addDirectory`
 
