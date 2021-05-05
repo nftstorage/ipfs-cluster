@@ -3,6 +3,10 @@ import { FormData } from '@web-std/form-data'
 import { File, Blob } from '@web-std/file'
 import assert from 'assert'
 import { Cluster } from './index.js'
+import { CarWriter } from '@ipld/car'
+import * as CBOR from '@ipld/dag-cbor'
+import { CID } from 'multiformats'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 Object.assign(global, { fetch, File, Blob, FormData })
 
@@ -43,6 +47,36 @@ const tests = {
     assert.strictEqual(dir[2].name, '')
     assert.strictEqual(dir[2].size, 128)
     assert.strictEqual(dir[2].cid, 'bafybeihdqdewefamqnvu7ih6t7pdam4wisengifqg3fv4jin76ax63hl3i')
+  },
+
+  async 'import dag via car file' () {
+    const cluster = new Cluster(URL)
+    const message = CBOR.encode({ hello: 'world' })
+    const link = CID.createV1(CBOR.code, await sha256.digest(message))
+
+    const dag = CBOR.encode({
+      to: 'world',
+      message: link
+    })
+    const cid = CID.createV1(CBOR.code, await sha256.digest(dag))
+
+    const { writer, out } = CarWriter.create([cid])
+    writer.put({ cid, bytes: dag })
+    writer.put({ cid: link, bytes: message })
+    writer.close()
+
+    const parts = []
+    for await (const chunk of out) {
+      parts.push(chunk)
+    }
+    const car = new Blob(parts, { type: 'application/car' })
+
+    const result = await cluster.add(car)
+    console.log(result)
+
+    assert.strictEqual(result.name, 'blob')
+    assert.strictEqual(result.cid, cid.toString())
+    assert.strictEqual(result.bytes, message.byteLength + dag.byteLength)
   },
 
   async 'pins a CID' () {
