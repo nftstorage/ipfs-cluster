@@ -77,11 +77,12 @@ export class Cluster {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
     }
 
-    const data = await response.text()
-    return data.split(/\r?\n/)
-      .filter(Boolean)
-      .map(d => JSON.parse(d))
-      .map(d => ({ ...d, cid: d.cid['/'] }))
+    const result = []
+    for await (const item of parseLines(response.body, JSON.parse)) {
+      result.push({ ...item, cid: item.cid['/'] })
+    }
+
+    return result
   }
 
   /**
@@ -262,5 +263,45 @@ function toPinResponse (data) {
     allocations: data.allocations,
     maxDepth: data.max_depth,
     reference: data.reference
+  }
+}
+
+const BR = /\r?\n/
+
+/**
+ * Takes a stream and returns async iterable of non whitespace lines parsed via
+ * provided parser.
+ *
+ * @template T
+ * @param {ReadableStream<Uint8Array>} source
+ * @param {(line:string) => T}
+ * @returns {AsyncIterable<T>}
+ */
+const parseLines = async function * (source, parseLine) {
+  const decoder = new TextDecoder()
+  const reader = source.getReader()
+  let buffer = ''
+
+  try {
+    while (true) {
+      const chunk = await reader.read()
+      if (chunk.done) {
+        if (buffer.trim().length > 0) {
+          yield parseLine(buffer)
+        }
+        break
+      } else {
+        buffer += decoder.decode(chunk.value, { stream: true })
+        const lines = buffer.split(BR)
+        buffer = lines.pop()
+        for (const line of lines) {
+          if (line.trim().length > 0) {
+            yield parseLine(line)
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock()
   }
 }
