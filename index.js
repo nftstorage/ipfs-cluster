@@ -201,6 +201,22 @@ export class Cluster {
 
     return { cid: data.cid['/'], name: data.name, peerMap }
   }
+
+  /**
+   * @returns {Promise<string[]>}
+   */
+  async metricNames () {
+    const url = new URL('monitor/metrics', this.url)
+    const headers = this.options.headers
+    const response = await fetch(url.toString(), { headers })
+
+    if (!response.ok) {
+      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+    }
+
+    const data = await response.json()
+    return data
+  }
 }
 
 /**

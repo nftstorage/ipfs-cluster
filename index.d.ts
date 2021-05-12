@@ -1,12 +1,40 @@
 export class Cluster {
+  /**
+   * Create a new instance of the cluster client.
+   */
   constructor (url: URL|string, options?: { headers?: Record<string, string> })
+  /**
+   * Import a file to the cluster. First argument must be a `File` or `Blob`.
+   */
   add (file: File|Blob, options?: PinOptions): Promise<AddResponse>
+  /**
+   * Imports multiple files to the cluster. First argument must be an array of `File` or `Blob`.
+   */
   addDirectory (file: Iterable<File|Blob>, options?: PinOptions): Promise<AddDirectoryResponse>
+  /**
+   * Tracks a CID with the given replication factor and a name for human-friendliness.
+   */
   pin (cid: string, options?: PinOptions): Promise<PinResponse>
+  /**
+   * Untracks a CID from cluster.
+   */
   unpin (cid: string): Promise<PinResponse>
+  /**
+   * Returns the current IPFS state for a given CID.
+   */
   status (cid: string, options?: StatusOptions): Promise<StatusResponse>
+  /**
+   * Returns the current allocation for a given CID.
+   */
   allocation (cid: string): Promise<PinResponse>
+  /**
+   * Re-triggers pin or unpin IPFS operations for a CID in error state.
+   */
   recover (cid: string, options?: RecoverOptions): Promise<StatusResponse>
+  /**
+   * Get a list of metric types known to the peer.
+   */
+  metricNames (): Promise<string[]>
 }
 
 export type AddResponse = {
