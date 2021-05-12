@@ -135,6 +135,14 @@ const tests = {
     const result = await cluster.unpin(cid)
     console.log(result)
     // TODO: is there something we can assert on in the response?
+  },
+
+  async 'gets metric names' () {
+    const cluster = new Cluster(URL)
+    const names = await cluster.metricNames()
+    console.log(names)
+    assert(Array.isArray(names))
+    names.forEach(n => assert.strictEqual(typeof n, 'string'))
   }
 }
 

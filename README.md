@@ -101,6 +101,15 @@ const cid = 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'
 const allocation = await cluster.allocation(cid)
 ```
 
+### `metricNames`
+
+Get a list of metric types known to the peer.
+
+```js
+const names = await cluster.metricNames()
+console.log(names) // [ 'ping', 'freespace' ]
+```
+
 ### `pin`
 
 Tracks a CID with the given replication factor and a name for human-friendliness.
