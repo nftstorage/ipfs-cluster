@@ -14,9 +14,9 @@
   "devDependencies": {
     "@ipld/car": "^1.0.1",
     "@ipld/dag-cbor": "^5.0.0",
-    "@web-std/fetch": "^1.0.0",
-    "@web-std/file": "^1.0.1",
-    "@web-std/form-data": "^2.0.0",
+    "@web-std/fetch": "^2.0.0",
+    "@web-std/file": "^1.1.0",
+    "@web-std/form-data": "^2.1.0",
     "multiformats": "^7.0.0",
     "standard": "^16.0.3"
   },
@@ -24,6 +24,9 @@
     "ignore": [
       "*.ts"
     ]
+  },
+  "eslintConfig": {
+    "extends": "standard"
   },
   "repository": {
     "type": "git",
