@@ -22,8 +22,8 @@ const tests = {
     const result = await cluster.add(file)
     console.log(result)
     assert.strictEqual(result.name, file.name)
-    assert.strictEqual(result.cid, 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu')
-    assert.strictEqual(result.size, 11)
+    assert.strictEqual(result.cid, 'bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy')
+    assert.strictEqual(result.size, 3)
   },
 
   async 'adds a directory of files' () {
@@ -36,17 +36,17 @@ const tests = {
     console.log(dir)
 
     assert.strictEqual(dir[0].name, files[0].name)
-    assert.strictEqual(dir[0].size, 11)
-    assert.strictEqual(dir[0].cid, 'bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu')
+    assert.strictEqual(dir[0].size, 3)
+    assert.strictEqual(dir[0].cid, 'bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy')
 
     assert.strictEqual(dir[1].name, files[1].name)
-    assert.strictEqual(dir[1].size, 11)
-    assert.strictEqual(dir[1].cid, 'bafybeidsnna57jpm2ttwaydwak25qpkxafrg4cnrjsfqipbcqxlsfobjje')
+    assert.strictEqual(dir[1].size, 3)
+    assert.strictEqual(dir[1].cid, 'bafkreih43yvs5w5fnp2aqya7w4q75g24gogrb3sct2qe7lsvcg3i7p4pxe')
 
     // (wrapper directory)
     assert.strictEqual(dir[2].name, '')
-    assert.strictEqual(dir[2].size, 128)
-    assert.strictEqual(dir[2].cid, 'bafybeihdqdewefamqnvu7ih6t7pdam4wisengifqg3fv4jin76ax63hl3i')
+    assert.strictEqual(dir[2].size, 112)
+    assert.strictEqual(dir[2].cid, 'bafybeidhbfwu4j2zckkqd42azgxm7hlvjjqj7dunvv7o7c3avyrhgtvppm')
   },
 
   async 'import dag via car file' () {
