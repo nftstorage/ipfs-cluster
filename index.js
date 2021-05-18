@@ -33,6 +33,7 @@ export class Cluster {
 
     const url = new URL('add', this.url)
     url.searchParams.set('cid-version', 1)
+    url.searchParams.set('raw-leaves', true)
     setPinOptions(options, url.searchParams)
 
     if (file.type === 'application/car') {
@@ -67,6 +68,7 @@ export class Cluster {
 
     const url = new URL('add', this.url)
     url.searchParams.set('cid-version', 1)
+    url.searchParams.set('raw-leaves', true)
     url.searchParams.set('wrap-with-directory', true)
     setPinOptions(options, url.searchParams)
 
