@@ -228,7 +228,7 @@ export class Cluster {
  */
 function setAddParams (options, searchParams) {
   options = options || {}
-  setPinOptions(options)
+  setPinOptions(options, searchParams)
   if (options.local != null) {
     searchParams.set('local', options.local)
   }
