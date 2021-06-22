@@ -221,7 +221,7 @@ export enum TrackerStatus {
   /**
    * The item has been queued for pinning on the IPFS daemon.
    */
-  PIN_QUEUED = 'queued',
+  PIN_QUEUED = 'pin_queued',
   /**
    * The item has been queued for unpinning on the IPFS daemon.
    */
