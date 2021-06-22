@@ -71,13 +71,13 @@ export type PinOptions = {
  * input files.
  */
 export type IPFSAddParams = {
-	layout?: string
-	chunker?: string
-	rawLeaves?: boolean
-	progress?: boolean
-	cidVersion?: 0|1
-	hashFun?: string
-	noCopy?: boolean
+  layout?: string
+  chunker?: string
+  rawLeaves?: boolean
+  progress?: boolean
+  cidVersion?: 0|1
+  hashFun?: string
+  noCopy?: boolean
 }
 
 /**
@@ -86,12 +86,12 @@ export type IPFSAddParams = {
  */
 export type AddParams = PinOptions & IPFSAddParams & {
   local?: boolean
-	recursive?: boolean
-	hidden?: boolean
-	wrap?: boolean
-	shard?: boolean
-	streamChannels?: boolean
-	format?: string
+  recursive?: boolean
+  hidden?: boolean
+  wrap?: boolean
+  shard?: boolean
+  streamChannels?: boolean
+  format?: string
 }
 
 export enum PinType {
