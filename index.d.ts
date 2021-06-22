@@ -5,14 +5,19 @@ export class Cluster {
   constructor (url: URL|string, options?: { headers?: Record<string, string> })
   /**
    * Import a file to the cluster. First argument must be a `File` or `Blob`.
+   * CAR files are supported with blob `type` set to `application/car`.
+   * Note: by default this module uses v1 CIDs and raw leaves enabled.
    */
-  add (file: File|Blob, options?: PinOptions): Promise<AddResponse>
+  add (file: File|Blob, options?: AddParams): Promise<AddResponse>
   /**
-   * Imports multiple files to the cluster. First argument must be an array of `File` or `Blob`.
+   * Imports multiple files to the cluster. First argument must be an array of
+   * `File` or `Blob`. Note: by default this module uses v1 CIDs and raw leaves
+   * enabled.
    */
-  addDirectory (file: Iterable<File|Blob>, options?: PinOptions): Promise<AddDirectoryResponse>
+  addDirectory (file: Iterable<File|Blob>, options?: AddParams): Promise<AddDirectoryResponse>
   /**
-   * Tracks a CID with the given replication factor and a name for human-friendliness.
+   * Tracks a CID with the given replication factor and a name for
+   * human-friendliness.
    */
   pin (cid: string, options?: PinOptions): Promise<PinResponse>
   /**
@@ -59,6 +64,34 @@ export type PinOptions = {
   expireAt?: Date
   metadata?: Record<string, string>
   pinUpdate?: string
+}
+
+/**
+ * Groups options specific to the ipfs-adder, which builds UnixFS DAGs with the
+ * input files.
+ */
+export type IPFSAddParams = {
+	layout?: string
+	chunker?: string
+	rawLeaves?: boolean
+	progress?: boolean
+	cidVersion?: 0|1
+	hashFun?: string
+	noCopy?: boolean
+}
+
+/**
+ * Contains all of the configurable parameters needed to specify the importing
+ * process of a file being added to an IPFS Cluster.
+ */
+export type AddParams = PinOptions & IPFSAddParams & {
+  local?: boolean
+	recursive?: boolean
+	hidden?: boolean
+	wrap?: boolean
+	shard?: boolean
+	streamChannels?: boolean
+	format?: string
 }
 
 export enum PinType {
@@ -149,7 +182,8 @@ export type PinInfo = {
 
 export enum TrackerStatus {
   /**
-   * IPFSStatus should never take this value. When used as a filter. It means "all".
+   * IPFSStatus should never take this value. When used as a filter. It means
+   * "all".
    */
   UNDEFINED = 'undefined',
   /**

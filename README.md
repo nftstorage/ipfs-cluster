@@ -87,6 +87,8 @@ const file = new File(['foo'], 'foo.txt')
 const { cid } = await cluster.add(file)
 ```
 
+Note: by default this module uses v1 CIDs and raw leaves enabled.
+
 Alternatively you can import data from a [CAR (Content Addressable aRchive)](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md) file:
 
 ```js
@@ -113,6 +115,8 @@ for (const entry of dir) {
   // bafybeidsnna57jpm2ttwaydwak25qpkxafrg4cnrjsfqipbcqxlsfobjje
 }
 ```
+
+Note: by default this module uses v1 CIDs and raw leaves enabled.
 
 ### `allocation`
 

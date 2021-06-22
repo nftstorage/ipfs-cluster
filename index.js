@@ -20,7 +20,7 @@ export class Cluster {
 
   /**
    * @param {File|Blob} file
-   * @param {import('./index').PinOptions} [options]
+   * @param {import('./index').AddParams} [options]
    * @returns {Promise<import('./index').AddResponse>}
    */
   async add (file, options) {
@@ -34,9 +34,9 @@ export class Cluster {
     const url = new URL('add', this.url)
     url.searchParams.set('cid-version', 1)
     url.searchParams.set('raw-leaves', true)
-    setPinOptions(options, url.searchParams)
+    setAddParams(options, url.searchParams)
 
-    if (file.type === 'application/car') {
+    if (file.type === 'application/car' || String(file.name).endsWith('.car')) {
       url.searchParams.set('format', 'car')
     }
 
@@ -69,9 +69,9 @@ export class Cluster {
     const url = new URL('add', this.url)
     url.searchParams.set('cid-version', 1)
     url.searchParams.set('raw-leaves', true)
-    url.searchParams.set('wrap-with-directory', true)
+    setAddParams(options, url.searchParams)
     url.searchParams.set('stream-channels', false)
-    setPinOptions(options, url.searchParams)
+    url.searchParams.set('wrap-with-directory', true)
 
     const headers = this.options.headers
     const response = await fetch(url.toString(), { method: 'POST', headers, body })
@@ -219,6 +219,58 @@ export class Cluster {
 
     const data = await response.json()
     return data
+  }
+}
+
+/**
+ * @param {import('./index').AddParams} options
+ * @param {URLSearchParams} searchParams
+ */
+function setAddParams (options, searchParams) {
+  options = options || {}
+  setPinOptions(options)
+  if (options.local != null) {
+    searchParams.set('local', options.local)
+  }
+  if (options.recursive != null) {
+    searchParams.set('recursive', options.recursive)
+  }
+  if (options.hidden != null) {
+    searchParams.set('hidden', options.hidden)
+  }
+  if (options.wrap != null) {
+    searchParams.set('wrap', options.wrap)
+  }
+  if (options.shard != null) {
+    searchParams.set('shard', options.shard)
+  }
+  if (options.streamChannels != null) {
+    searchParams.set('stream-channels', options.streamChannels)
+  }
+  if (options.format != null) {
+    searchParams.set('format', options.format)
+  }
+  // IPFSAddParams
+  if (options.layout != null) {
+    searchParams.set('layout', options.layout)
+  }
+  if (options.chunker != null) {
+    searchParams.set('chunker', options.chunker)
+  }
+  if (options.rawLeaves != null) {
+    searchParams.set('raw-leaves', options.rawLeaves)
+  }
+  if (options.progress != null) {
+    searchParams.set('progress', options.progress)
+  }
+  if (options.cidVersion != null) {
+    searchParams.set('cid-version', options.cidVersion)
+  }
+  if (options.hashFun != null) {
+    searchParams.set('hash', options.hashFun)
+  }
+  if (options.noCopy != null) {
+    searchParams.set('no-copy', options.noCopy)
   }
 }
 
