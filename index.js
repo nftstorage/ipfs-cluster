@@ -281,10 +281,10 @@ function setAddParams (options, searchParams) {
 function setPinOptions (options, searchParams) {
   options = options || {}
   if (options.replicationFactorMin != null) {
-    searchParams.set('replication_factor_min', options.replicationFactorMin)
+    searchParams.set('replication-min', options.replicationFactorMin)
   }
   if (options.replicationFactorMax != null) {
-    searchParams.set('replication_factor_max', options.replicationFactorMax)
+    searchParams.set('replication-max', options.replicationFactorMax)
   }
   if (options.name != null) {
     searchParams.set('name', options.name)
@@ -293,15 +293,13 @@ function setPinOptions (options, searchParams) {
     searchParams.set('mode', options.mode)
   }
   if (options.shardSize != null) {
-    searchParams.set('shard_size', options.shardSize)
+    searchParams.set('shard-size', options.shardSize)
   }
   if (options.userAllocations != null) {
-    for (const a of options.userAllocations) {
-      searchParams.append('user_allocations', a)
-    }
+    searchParams.set('user-allocations', options.userAllocations.join(','))
   }
   if (options.expireAt != null) {
-    searchParams.set('expire_at', options.expireAt.toISOString())
+    searchParams.set('expire-at', options.expireAt.toISOString())
   }
   if (options.metadata != null) {
     for (const [k, v] of Object.entries(options.metadata)) {
@@ -309,7 +307,7 @@ function setPinOptions (options, searchParams) {
     }
   }
   if (options.pinUpdate != null) {
-    searchParams.set('pin_update', options.pinUpdate)
+    searchParams.set('pin-update', options.pinUpdate)
   }
   if (options.origins != null) {
     searchParams.set('origins', options.origins.join(','))
