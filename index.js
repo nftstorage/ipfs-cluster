@@ -311,6 +311,9 @@ function setPinOptions (options, searchParams) {
   if (options.pinUpdate != null) {
     searchParams.set('pin_update', options.pinUpdate)
   }
+  if (options.origins != null) {
+    searchParams.set('origins', options.origins.join(','))
+  }
 }
 
 /**

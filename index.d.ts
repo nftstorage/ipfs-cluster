@@ -64,6 +64,10 @@ export type PinOptions = {
   expireAt?: Date
   metadata?: Record<string, string>
   pinUpdate?: string
+  /**
+   * List of multiaddrs known to provide the data.
+   */
+  origins?: string[]
 }
 
 /**
