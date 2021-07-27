@@ -2,60 +2,70 @@ export class Cluster {
   /**
    * Create a new instance of the cluster client.
    */
-  constructor (url: URL|string, options?: { headers?: Record<string, string> })
+  constructor(url: URL | string, options?: { headers?: Record<string, string> })
   /**
    * Import a file to the cluster. First argument must be a `File` or `Blob`.
    * CAR files are supported with blob `type` set to `application/car`.
    * Note: by default this module uses v1 CIDs and raw leaves enabled.
    */
-  add (file: File|Blob, options?: AddParams): Promise<AddResponse>
+  add(file: File | Blob, options?: AddParams): Promise<AddResponse>
   /**
    * Imports multiple files to the cluster. First argument must be an array of
    * `File` or `Blob`. Note: by default this module uses v1 CIDs and raw leaves
    * enabled.
    */
-  addDirectory (file: Iterable<File|Blob>, options?: AddParams): Promise<AddDirectoryResponse>
+  addDirectory(
+    file: Iterable<File | Blob>,
+    options?: AddParams
+  ): Promise<AddDirectoryResponse>
   /**
    * Tracks a CID with the given replication factor and a name for
    * human-friendliness.
    */
-  pin (cid: string, options?: PinOptions): Promise<PinResponse>
+  pin(cid: string, options?: PinOptions): Promise<PinResponse>
   /**
    * Untracks a CID from cluster.
    */
-  unpin (cid: string): Promise<PinResponse>
+  unpin(cid: string): Promise<PinResponse>
   /**
    * Returns the current IPFS state for a given CID.
    */
-  status (cid: string, options?: StatusOptions): Promise<StatusResponse>
+  status(cid: string, options?: StatusOptions): Promise<StatusResponse>
   /**
    * Returns the current allocation for a given CID.
    */
-  allocation (cid: string): Promise<PinResponse>
+  allocation(cid: string, options?: RequestOptions): Promise<PinResponse>
   /**
    * Re-triggers pin or unpin IPFS operations for a CID in error state.
    */
-  recover (cid: string, options?: RecoverOptions): Promise<StatusResponse>
+  recover(cid: string, options?: RecoverOptions): Promise<StatusResponse>
   /**
    * Get a list of metric types known to the peer.
    */
-  metricNames (): Promise<string[]>
+  metricNames(options?: RequestOptions): Promise<string[]>
+}
+
+export interface RequestOptions {
+  /**
+   * If provided, corresponding request will be aborted when signalled.
+   */
+  signal?: AbortSignal
 }
 
 export type AddResponse = {
   cid: string
   name?: string
-  size?: number|string
-  bytes?: number|string
+  size?: number | string
+  bytes?: number | string
 }
 
 export type AddDirectoryResponse = AddResponse[]
 
-export type PinOptions = {
+export interface PinOptions extends RequestOptions {
   replicationFactorMin?: number
   replicationFactorMax?: number
   name?: string
-  mode?: 'recursive'|'direct'
+  mode?: 'recursive' | 'direct'
   shardSize?: number
   /**
    * The peers to which this pin should be allocated.
@@ -79,7 +89,7 @@ export type IPFSAddParams = {
   chunker?: string
   rawLeaves?: boolean
   progress?: boolean
-  cidVersion?: 0|1
+  cidVersion?: 0 | 1
   hashFun?: string
   noCopy?: boolean
 }
@@ -88,15 +98,16 @@ export type IPFSAddParams = {
  * Contains all of the configurable parameters needed to specify the importing
  * process of a file being added to an IPFS Cluster.
  */
-export type AddParams = PinOptions & IPFSAddParams & {
-  local?: boolean
-  recursive?: boolean
-  hidden?: boolean
-  wrap?: boolean
-  shard?: boolean
-  streamChannels?: boolean
-  format?: string
-}
+export type AddParams = PinOptions &
+  IPFSAddParams & {
+    local?: boolean
+    recursive?: boolean
+    hidden?: boolean
+    wrap?: boolean
+    shard?: boolean
+    streamChannels?: boolean
+    format?: string
+  }
 
 export enum PinType {
   /**
@@ -133,7 +144,7 @@ export type PinResponse = {
   replicationFactorMin: number
   replicationFactorMax: number
   name: string
-  mode: 'recursive'|'direct'
+  mode: 'recursive' | 'direct'
   shardSize: number
   /**
    * The peers to which this pin is allocated.
@@ -165,7 +176,7 @@ export type PinResponse = {
   reference?: string
 }
 
-export type StatusOptions = {
+export interface StatusOptions extends RequestOptions {
   local?: boolean
 }
 
