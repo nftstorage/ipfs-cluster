@@ -41,7 +41,12 @@ export class Cluster {
     }
 
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { method: 'POST', headers, body })
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers,
+      body,
+      signal: options.signal
+    })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -74,7 +79,12 @@ export class Cluster {
     url.searchParams.set('wrap-with-directory', true)
 
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { method: 'POST', headers, body })
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers,
+      body,
+      signal: options.signal
+    })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -98,7 +108,11 @@ export class Cluster {
     setPinOptions(options, url.searchParams)
 
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { method: 'POST', headers })
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers,
+      signal: options.signal
+    })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -110,13 +124,18 @@ export class Cluster {
 
   /**
    * @param {string} cid CID or IPFS/IPNS path to unpin from the cluster.
+   * @param {import('./index').RequestOptions} [options]
    * @returns {Promise<import('./index').PinResponse>}
    */
-  async unpin (cid) {
+  async unpin (cid, { signal } = {}) {
     const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
     const url = new URL(path, this.url)
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { method: 'DELETE', headers })
+    const response = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers,
+      signal
+    })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -131,16 +150,15 @@ export class Cluster {
    * @param {import('./index').StatusOptions} [options]
    * @returns {Promise<import('./index').StatusResponse>}
    */
-  async status (cid, options) {
+  async status (cid, { local, signal } = {}) {
     const url = new URL(`pins/${encodeURIComponent(cid)}`, this.url)
 
-    options = options || {}
-    if (options.local != null) {
-      url.searchParams.set('local', options.local)
+    if (local != null) {
+      url.searchParams.set('local', local)
     }
 
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { headers })
+    const response = await fetch(url.toString(), { headers, signal })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -159,12 +177,13 @@ export class Cluster {
 
   /**
    * @param {string} cid The CID to get pin status information for.
+   * @param {import('./index').RequestOptions} [options]
    * @returns {Promise<import('./index').PinResponse>}
    */
-  async allocation (cid) {
+  async allocation (cid, { signal } = {}) {
     const url = new URL(`allocations/${encodeURIComponent(cid)}`, this.url)
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { headers })
+    const response = await fetch(url.toString(), { headers, signal })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -179,16 +198,19 @@ export class Cluster {
    * @param {import('./index').RecoverOptions} [options]
    * @returns {Promise<import('./index').StatusResponse>}
    */
-  async recover (cid, options) {
+  async recover (cid, { local, signal } = {}) {
     const url = new URL(`pins/${encodeURIComponent(cid)}/recover`, this.url)
 
-    options = options || {}
-    if (options.local != null) {
-      url.searchParams.set('local', options.local)
+    if (local != null) {
+      url.searchParams.set('local', local)
     }
 
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { method: 'POST', headers })
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers,
+      signal
+    })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
@@ -206,12 +228,13 @@ export class Cluster {
   }
 
   /**
+   * @param {import('./index').RequestOptions} [options]
    * @returns {Promise<string[]>}
    */
-  async metricNames () {
+  async metricNames ({ signal } = {}) {
     const url = new URL('monitor/metrics', this.url)
     const headers = this.options.headers
-    const response = await fetch(url.toString(), { headers })
+    const response = await fetch(url.toString(), { headers, signal })
 
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })

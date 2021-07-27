@@ -25,6 +25,11 @@
       "*.ts"
     ]
   },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "none"
+  },
   "eslintConfig": {
     "extends": "standard"
   },
