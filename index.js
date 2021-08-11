@@ -23,7 +23,7 @@ export class Cluster {
    * @param {import('./index').AddParams} [options]
    * @returns {Promise<import('./index').AddResponse>}
    */
-  async add (file, options) {
+  async add (file, options = {}) {
     if (!(file instanceof File) && !(file instanceof Blob)) {
       throw new Error('invalid file')
     }
@@ -32,8 +32,12 @@ export class Cluster {
     body.append('file', file, file.name)
 
     const url = new URL('add', this.url)
-    url.searchParams.set('cid-version', 1)
-    url.searchParams.set('raw-leaves', true)
+    url.searchParams.set('cid-version', '1')
+    url.searchParams.set('raw-leaves', 'true')
+    // stream-channels=false means buffer entire response in cluster before returning.
+    // MAY avoid weird edge-cases with prematurely closed streams
+    // see: https://github.com/web3-storage/web3.storage/issues/323
+    url.searchParams.set('stream-channels', 'false')
     setAddParams(options, url.searchParams)
 
     if (file.type === 'application/car' || String(file.name).endsWith('.car')) {
@@ -51,9 +55,13 @@ export class Cluster {
     if (!response.ok) {
       throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
     }
-
-    const data = await response.json()
-    return { ...data, cid: data.cid['/'] }
+    try {
+      const body = await response.json()
+      const data = url.searchParams.get('stream-channels') === 'false' ? body[0] : body
+      return { ...data, cid: data.cid['/'] }
+    } catch (err) {
+      throw new Error(`failed to parse response body from cluster add ${err.stack}`)
+    }
   }
 
   /**
@@ -61,7 +69,7 @@ export class Cluster {
    * @param {import('./index').PinOptions} [options]
    * @returns {Promise<import('./index').AddDirectoryResponse>}
    */
-  async addDirectory (files, options) {
+  async addDirectory (files, options = {}) {
     const body = new FormData()
 
     for (const f of files) {
@@ -102,7 +110,7 @@ export class Cluster {
    * @param {import('./index').PinOptions} [options]
    * @returns {Promise<import('./index').PinResponse>}
    */
-  async pin (cid, options) {
+  async pin (cid, options = {}) {
     const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
     const url = new URL(path, this.url)
     setPinOptions(options, url.searchParams)
