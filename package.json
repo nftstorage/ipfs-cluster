@@ -32,7 +32,7 @@
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*.*": "prettier --write ."
+    "*.js|json|yml": "prettier --write ."
   },
   "prettier": {
     "singleQuote": true,
