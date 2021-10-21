@@ -5,8 +5,12 @@
   "main": "index.js",
   "type": "module",
   "types": "index.d.ts",
+  "exports": {
+    ".": "./index.js"
+  },
   "scripts": {
-    "test": "node test.js",
+    "test": "mocha test/*.spec.js",
+    "start": "docker-compose up",
     "lint": "standard"
   },
   "author": "Alan Shaw",
@@ -18,7 +22,9 @@
     "@web-std/file": "^1.1.0",
     "@web-std/form-data": "^2.1.0",
     "multiformats": "^8.0.6",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "mocha": "^9.1.3",
+    "uvu": "^0.5.2"
   },
   "standard": {
     "ignore": [
