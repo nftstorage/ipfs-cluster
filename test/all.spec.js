@@ -29,6 +29,40 @@ describe('cluster.add', () => {
     )
     assert.equal(result.size, 3)
   })
+
+  it('cars files are added as any other binary file', async () => {
+    const cluster = new Cluster(URL)
+    const message = CBOR.encode({ hello: 'world' })
+    const link = CID.createV1(CBOR.code, await sha256.digest(message))
+
+    const dag = CBOR.encode({
+      to: 'world',
+      message: link
+    })
+    const cid = CID.createV1(CBOR.code, await sha256.digest(dag))
+
+    const { writer, out } = CarWriter.create([cid])
+    writer.put({ cid, bytes: dag })
+    writer.put({ cid: link, bytes: message })
+    writer.close()
+
+    const parts = []
+    for await (const chunk of out) {
+      parts.push(chunk)
+    }
+    const car = new Blob(parts, { type: 'application/car' })
+
+    const result = await cluster.add(car)
+    console.log(result)
+
+    assert.equal(result.name, 'blob')
+    assert.equal(
+      result.cid,
+      'bafkreiegp2z6crgmgywbndbozu5i7qmgwbkyom5pthjh7hlnbx53jr2ov4'
+    )
+
+    assert.equal(result.size, car.size)
+  })
 })
 
 describe('cluster.addDirectory', () => {
@@ -59,8 +93,10 @@ describe('cluster.addDirectory', () => {
       'bafybeidhbfwu4j2zckkqd42azgxm7hlvjjqj7dunvv7o7c3avyrhgtvppm'
     )
   })
+})
 
-  it('import dag via car file', async () => {
+describe('cluster.addCAR', () => {
+  it('import car file', async () => {
     const cluster = new Cluster(URL)
     const message = CBOR.encode({ hello: 'world' })
     const link = CID.createV1(CBOR.code, await sha256.digest(message))
@@ -82,14 +118,13 @@ describe('cluster.addDirectory', () => {
     }
     const car = new Blob(parts, { type: 'application/car' })
 
-    const result = await cluster.add(car)
+    const result = await cluster.addCAR(car)
 
     assert.equal(result.name, 'blob')
     assert.equal(result.cid, cid.toString())
     assert.equal(result.bytes, message.byteLength + dag.byteLength)
   })
 })
-
 describe('cluster.pin', () => {
   it('pins a CID', async () => {
     const cluster = new Cluster(URL)

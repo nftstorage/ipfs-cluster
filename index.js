@@ -5,7 +5,7 @@ export class Cluster {
    * @param {URL|string} url Cluster HTTP API root URL.
    * @param {{ headers?: Record<string, string> }} [options]
    */
-  constructor (url, options) {
+  constructor(url, options) {
     /**
      * @private
      * @readonly
@@ -23,7 +23,7 @@ export class Cluster {
    * @param {import('./index').AddParams} [options]
    * @returns {Promise<import('./index').AddResponse>}
    */
-  async add (file, options = {}) {
+  async add(file, options = {}) {
     if (!(file instanceof File) && !(file instanceof Blob)) {
       throw new Error('invalid file')
     }
@@ -40,8 +40,8 @@ export class Cluster {
     url.searchParams.set('stream-channels', 'false')
     setAddParams(options, url.searchParams)
 
-    if (file.type === 'application/car' || String(file.name).endsWith('.car')) {
-      url.searchParams.set('format', 'car')
+    if (options.format) {
+      url.searchParams.set('format', options.format)
     }
 
     const headers = this.options.headers
@@ -53,14 +53,20 @@ export class Cluster {
     })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
     try {
       const body = await response.json()
-      const data = url.searchParams.get('stream-channels') === 'false' ? body[0] : body
+      const data =
+        url.searchParams.get('stream-channels') === 'false' ? body[0] : body
       return { ...data, cid: data.cid['/'] }
     } catch (err) {
-      throw new Error(`failed to parse response body from cluster add ${err.stack}`)
+      throw new Error(
+        `failed to parse response body from cluster add ${err.stack}`
+      )
     }
   }
 
@@ -69,7 +75,7 @@ export class Cluster {
    * @param {import('./index').PinOptions} [options]
    * @returns {Promise<import('./index').AddDirectoryResponse>}
    */
-  async addDirectory (files, options = {}) {
+  async addDirectory(files, options = {}) {
     const body = new FormData()
 
     for (const f of files) {
@@ -95,7 +101,10 @@ export class Cluster {
     })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const results = await response.json()
@@ -106,11 +115,20 @@ export class Cluster {
   }
 
   /**
+   * @param {Blob} file
+   * @param {import('./index').AddParams} [options]
+   * @returns {Promise<import('./index').AddResponse>}
+   */
+  addCAR(car, options = {}) {
+    return this.add(car, { ...options, format: 'car' })
+  }
+
+  /**
    * @param {string} cid CID or IPFS/IPNS path to pin to the cluster.
    * @param {import('./index').PinOptions} [options]
    * @returns {Promise<import('./index').PinResponse>}
    */
-  async pin (cid, options = {}) {
+  async pin(cid, options = {}) {
     const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
     const url = new URL(path, this.url)
     setPinOptions(options, url.searchParams)
@@ -123,7 +141,10 @@ export class Cluster {
     })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const data = await response.json()
@@ -135,7 +156,7 @@ export class Cluster {
    * @param {import('./index').RequestOptions} [options]
    * @returns {Promise<import('./index').PinResponse>}
    */
-  async unpin (cid, { signal } = {}) {
+  async unpin(cid, { signal } = {}) {
     const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
     const url = new URL(path, this.url)
     const headers = this.options.headers
@@ -146,7 +167,10 @@ export class Cluster {
     })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const data = await response.json()
@@ -158,7 +182,7 @@ export class Cluster {
    * @param {import('./index').StatusOptions} [options]
    * @returns {Promise<import('./index').StatusResponse>}
    */
-  async status (cid, { local, signal } = {}) {
+  async status(cid, { local, signal } = {}) {
     const url = new URL(`pins/${encodeURIComponent(cid)}`, this.url)
 
     if (local != null) {
@@ -169,15 +193,26 @@ export class Cluster {
     const response = await fetch(url.toString(), { headers, signal })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const data = await response.json()
     let peerMap = data.peer_map
     if (peerMap) {
-      peerMap = Object.fromEntries(Object.entries(peerMap).map(([k, v]) => (
-        [k, { peerName: v.peername, status: v.status, timestamp: new Date(v.timestamp), error: v.error }]
-      )))
+      peerMap = Object.fromEntries(
+        Object.entries(peerMap).map(([k, v]) => [
+          k,
+          {
+            peerName: v.peername,
+            status: v.status,
+            timestamp: new Date(v.timestamp),
+            error: v.error
+          }
+        ])
+      )
     }
 
     return { cid: data.cid['/'], name: data.name, peerMap }
@@ -188,13 +223,16 @@ export class Cluster {
    * @param {import('./index').RequestOptions} [options]
    * @returns {Promise<import('./index').PinResponse>}
    */
-  async allocation (cid, { signal } = {}) {
+  async allocation(cid, { signal } = {}) {
     const url = new URL(`allocations/${encodeURIComponent(cid)}`, this.url)
     const headers = this.options.headers
     const response = await fetch(url.toString(), { headers, signal })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const data = await response.json()
@@ -206,7 +244,7 @@ export class Cluster {
    * @param {import('./index').RecoverOptions} [options]
    * @returns {Promise<import('./index').StatusResponse>}
    */
-  async recover (cid, { local, signal } = {}) {
+  async recover(cid, { local, signal } = {}) {
     const url = new URL(`pins/${encodeURIComponent(cid)}/recover`, this.url)
 
     if (local != null) {
@@ -221,15 +259,26 @@ export class Cluster {
     })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const data = await response.json()
     let peerMap = data.peer_map
     if (peerMap) {
-      peerMap = Object.fromEntries(Object.entries(peerMap).map(([k, v]) => (
-        [k, { peerName: v.peername, status: v.status, timestamp: new Date(v.timestamp), error: v.error }]
-      )))
+      peerMap = Object.fromEntries(
+        Object.entries(peerMap).map(([k, v]) => [
+          k,
+          {
+            peerName: v.peername,
+            status: v.status,
+            timestamp: new Date(v.timestamp),
+            error: v.error
+          }
+        ])
+      )
     }
 
     return { cid: data.cid['/'], name: data.name, peerMap }
@@ -239,13 +288,16 @@ export class Cluster {
    * @param {import('./index').RequestOptions} [options]
    * @returns {Promise<string[]>}
    */
-  async metricNames ({ signal } = {}) {
+  async metricNames({ signal } = {}) {
     const url = new URL('monitor/metrics', this.url)
     const headers = this.options.headers
     const response = await fetch(url.toString(), { headers, signal })
 
     if (!response.ok) {
-      throw Object.assign(new Error(`${response.status}: ${response.statusText}`), { response })
+      throw Object.assign(
+        new Error(`${response.status}: ${response.statusText}`),
+        { response }
+      )
     }
 
     const data = await response.json()
@@ -257,7 +309,7 @@ export class Cluster {
  * @param {import('./index').AddParams} options
  * @param {URLSearchParams} searchParams
  */
-function setAddParams (options, searchParams) {
+function setAddParams(options, searchParams) {
   options = options || {}
   setPinOptions(options, searchParams)
   if (options.local != null) {
@@ -309,7 +361,7 @@ function setAddParams (options, searchParams) {
  * @param {import('./index').PinOptions} options
  * @param {URLSearchParams} searchParams
  */
-function setPinOptions (options, searchParams) {
+function setPinOptions(options, searchParams) {
   options = options || {}
   if (options.replicationFactorMin != null) {
     searchParams.set('replication-min', options.replicationFactorMin)
@@ -349,7 +401,7 @@ function setPinOptions (options, searchParams) {
  * @param {any} data
  * @returns {import('./index').PinResponse}
  */
-function toPinResponse (data) {
+function toPinResponse(data) {
   return {
     replicationFactorMin: data.replication_factor_min,
     replicationFactorMax: data.replication_factor_max,
