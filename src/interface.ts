@@ -1,58 +1,12 @@
-export class Cluster {
+export interface Config {
   /**
-   * Create a new instance of the cluster client.
+   * IPFS Cluster URL
    */
-  constructor(url: URL | string, options?: { headers?: Record<string, string> })
+  url: URL
   /**
-   * Import a file to the cluster. First argument must be a `File` or `Blob`.
-   * Note: by default this module uses v1 CIDs and raw leaves enabled.
+   * Additional headers to be included with requests.
    */
-  add(file: File | Blob, options?: AddParams): Promise<AddResponse>
-
-  /**
-   * Imports blocks encoded in the given CAR file and pins them (similarly to
-   * ipfs dag import). At the moment only CAR files MUST have only one root (the
-   * one that will be pinned). . CAR files allow adding arbitrary IPLD-DAGs
-   * through the Cluster API.
-   *
-   * @param car
-   * @param options
-   */
-  addCAR(car: Blob, options?: AddCarParams): Promise<AddResponse>
-  /**
-   * Imports multiple files to the cluster. First argument must be an array of
-   * `File` or `Blob`. Note: by default this module uses v1 CIDs and raw leaves
-   * enabled.
-   */
-  addDirectory(
-    file: Iterable<File | Blob>,
-    options?: AddParams
-  ): Promise<AddDirectoryResponse>
-  /**
-   * Tracks a CID with the given replication factor and a name for
-   * human-friendliness.
-   */
-  pin(cid: string, options?: PinOptions): Promise<PinResponse>
-  /**
-   * Untracks a CID from cluster.
-   */
-  unpin(cid: string): Promise<PinResponse>
-  /**
-   * Returns the current IPFS state for a given CID.
-   */
-  status(cid: string, options?: StatusOptions): Promise<StatusResponse>
-  /**
-   * Returns the current allocation for a given CID.
-   */
-  allocation(cid: string, options?: RequestOptions): Promise<PinResponse>
-  /**
-   * Re-triggers pin or unpin IPFS operations for a CID in error state.
-   */
-  recover(cid: string, options?: RecoverOptions): Promise<StatusResponse>
-  /**
-   * Get a list of metric types known to the peer.
-   */
-  metricNames(options?: RequestOptions): Promise<string[]>
+  headers?: Record<string, string>
 }
 
 export interface RequestOptions {

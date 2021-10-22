@@ -2,17 +2,30 @@
   "name": "@nftstorage/ipfs-cluster",
   "version": "3.3.1",
   "description": "A zero-dependency client to the IPFS Cluster HTTP API, built for the browser.",
-  "main": "index.js",
+  "main": "./src/index.js",
   "type": "module",
-  "types": "index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "exports": {
-    ".": "./index.js"
+    ".": {
+      "import": "./src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./interface": {
+      "import": "./src/interface.js",
+      "types": "./dist/src/interface.d.ts"
+    }
   },
   "scripts": {
+    "build": "tsc --build",
     "test": "mocha test/*.spec.js",
     "start": "docker-compose up",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepublishOnly": "npm run build"
   },
+  "files": [
+    "src",
+    "dist/src"
+  ],
   "author": "Alan Shaw",
   "license": "(Apache-2.0 AND MIT)",
   "devDependencies": {
@@ -21,12 +34,14 @@
     "@web-std/fetch": "^2.0.0",
     "@web-std/file": "^1.1.0",
     "@web-std/form-data": "^2.1.0",
-    "multiformats": "^8.0.6",
+    "@types/mocha": "^9.0.0",
+    "multiformats": "^7.0.0",
     "mocha": "^9.1.3",
     "uvu": "^0.5.2",
     "lint-staged": "^11.0.0",
     "prettier": "2.4.0",
-    "simple-git-hooks": "^2.3.1"
+    "simple-git-hooks": "^2.3.1",
+    "typescript": "^4.4.4"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
