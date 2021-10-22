@@ -53,7 +53,6 @@ describe('cluster.add', () => {
     const car = new Blob(parts, { type: 'application/car' })
 
     const result = await cluster.add(car)
-    console.log(result)
 
     assert.equal(result.name, 'blob')
     assert.equal(
@@ -71,14 +70,14 @@ describe('cluster.addDirectory', () => {
     const files = [new File(['foo'], 'foo.txt'), new File(['bar'], 'bar.txt')]
     const [foo, bar, dir] = await cluster.addDirectory(files)
 
-    assert.equal(foo?.name, 'foo')
+    assert.equal(foo?.name, 'foo.txt')
     assert.equal(foo?.size, 3)
     assert.equal(
       foo?.cid,
       'bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy'
     )
 
-    assert.equal(bar?.name, 'bar')
+    assert.equal(bar?.name, 'bar.txt')
     assert.equal(bar?.size, 3)
     assert.equal(
       bar?.cid,
