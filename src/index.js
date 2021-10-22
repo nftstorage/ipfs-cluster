@@ -1,13 +1,14 @@
 /* eslint-env browser */
 
+import * as API from './interface.js'
 /**
  * Import a file to the cluster. First argument must be a `File` or `Blob`.
  * Note: by default this module uses v1 CIDs and raw leaves enabled.
  *
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {File|Blob} file
- * @param {import('./interface').AddParams} [options]
- * @returns {Promise<import('./interface').AddResponse>}
+ * @param {API.AddParams} [options]
+ * @returns {Promise<API.AddResponse>}
  */
 export const add = async (cluster, file, options = {}) => {
   if (!(file instanceof File) && !(file instanceof Blob)) {
@@ -41,10 +42,10 @@ export const add = async (cluster, file, options = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {Iterable<File|Blob>} files
- * @param {import('../index').PinOptions} [options]
- * @returns {Promise<import('../index').AddDirectoryResponse>}
+ * @param {API.PinOptions} [options]
+ * @returns {Promise<API.AddDirectoryResponse>}
  */
 export const addDirectory = async (cluster, files, options = {}) => {
   const body = new FormData()
@@ -75,19 +76,19 @@ export const addDirectory = async (cluster, files, options = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {Blob} car
- * @param {import('../index').AddParams} [options]
- * @returns {Promise<import('../index').AddResponse>}
+ * @param {API.AddParams} [options]
+ * @returns {Promise<API.AddResponse>}
  */
 export const addCAR = (cluster, car, options = {}) =>
   add(cluster, car, { ...options, format: 'car' })
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {string} cid CID or IPFS/IPNS path to pin to the cluster.
- * @param {import('../index').PinOptions} [options]
- * @returns {Promise<import('../index').PinResponse>}
+ * @param {API.PinOptions} [options]
+ * @returns {Promise<API.PinResponse>}
  */
 export const pin = async (cluster, cid, options = {}) => {
   const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
@@ -102,10 +103,10 @@ export const pin = async (cluster, cid, options = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {string} cid CID or IPFS/IPNS path to unpin from the cluster.
- * @param {import('../index').RequestOptions} [options]
- * @returns {Promise<import('../index').PinResponse>}
+ * @param {API.RequestOptions} [options]
+ * @returns {Promise<API.PinResponse>}
  */
 export const unpin = async (cluster, cid, { signal } = {}) => {
   const path = cid.startsWith('/') ? `pins${cid}` : `pins/${cid}`
@@ -118,10 +119,10 @@ export const unpin = async (cluster, cid, { signal } = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {string} cid The CID to get pin status information for.
- * @param {import('../index').StatusOptions} [options]
- * @returns {Promise<import('../index').StatusResponse>}
+ * @param {API.StatusOptions} [options]
+ * @returns {Promise<API.StatusResponse>}
  */
 export const status = async (cluster, cid, { local, signal } = {}) => {
   const path = `pins/${encodeURIComponent(cid)}`
@@ -150,10 +151,10 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {string} cid The CID to get pin status information for.
- * @param {import('../index').RequestOptions} [options]
- * @returns {Promise<import('../index').PinResponse>}
+ * @param {API.RequestOptions} [options]
+ * @returns {Promise<API.PinResponse>}
  */
 export const allocation = async (cluster, cid, { signal } = {}) => {
   const path = `allocations/${encodeURIComponent(cid)}`
@@ -163,10 +164,10 @@ export const allocation = async (cluster, cid, { signal } = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {string} cid The CID to get pin status information for.
- * @param {import('../index').RecoverOptions} [options]
- * @returns {Promise<import('../index').StatusResponse>}
+ * @param {API.RecoverOptions} [options]
+ * @returns {Promise<API.StatusResponse>}
  */
 export const recover = async (cluster, cid, { local, signal } = {}) => {
   const path = `pins/${encodeURIComponent(cid)}/recover`
@@ -196,8 +197,8 @@ export const recover = async (cluster, cid, { local, signal } = {}) => {
 }
 
 /**
- * @param {import('./interface').Config} cluster
- * @param {import('../index').RequestOptions} [options]
+ * @param {API.Config} cluster
+ * @param {API.RequestOptions} [options]
  * @returns {Promise<string[]>}
  */
 export const metricNames = (cluster, { signal } = {}) =>
@@ -205,7 +206,7 @@ export const metricNames = (cluster, { signal } = {}) =>
 
 /**
  *
- * @param {import('./interface').Config} cluster
+ * @param {API.Config} cluster
  * @param {string} path
  * @param {Object} [options]
  * @param {string} [options.method]
@@ -255,7 +256,7 @@ export class Cluster {
 
   /**
    * @param {File|Blob} file
-   * @param {import('../index').AddParams} [options]
+   * @param {API.AddParams} [options]
    */
   add(file, options) {
     return add(this, file, options)
@@ -263,8 +264,8 @@ export class Cluster {
 
   /**
    * @param {Iterable<File|Blob>} files
-   * @param {import('../index').PinOptions} [options]
-   * @returns {Promise<import('../index').AddDirectoryResponse>}
+   * @param {API.PinOptions} [options]
+   * @returns {Promise<API.AddDirectoryResponse>}
    */
   addDirectory(files, options) {
     return addDirectory(this, files, options)
@@ -272,8 +273,8 @@ export class Cluster {
 
   /**
    * @param {Blob} car
-   * @param {import('../index').AddParams} [options]
-   * @returns {Promise<import('../index').AddResponse>}
+   * @param {API.AddParams} [options]
+   * @returns {Promise<API.AddResponse>}
    */
   addCAR(car, options = {}) {
     return addCAR(this, car, { ...options, format: 'car' })
@@ -281,8 +282,8 @@ export class Cluster {
 
   /**
    * @param {string} cid CID or IPFS/IPNS path to pin to the cluster.
-   * @param {import('../index').PinOptions} [options]
-   * @returns {Promise<import('../index').PinResponse>}
+   * @param {API.PinOptions} [options]
+   * @returns {Promise<API.PinResponse>}
    */
   pin(cid, options) {
     return pin(this, cid, options)
@@ -290,8 +291,8 @@ export class Cluster {
 
   /**
    * @param {string} cid CID or IPFS/IPNS path to unpin from the cluster.
-   * @param {import('../index').RequestOptions} [options]
-   * @returns {Promise<import('../index').PinResponse>}
+   * @param {API.RequestOptions} [options]
+   * @returns {Promise<API.PinResponse>}
    */
   unpin(cid, options) {
     return unpin(this, cid, options)
@@ -299,8 +300,8 @@ export class Cluster {
 
   /**
    * @param {string} cid The CID to get pin status information for.
-   * @param {import('../index').StatusOptions} [options]
-   * @returns {Promise<import('../index').StatusResponse>}
+   * @param {API.StatusOptions} [options]
+   * @returns {Promise<API.StatusResponse>}
    */
   status(cid, options) {
     return status(this, cid, options)
@@ -308,8 +309,8 @@ export class Cluster {
 
   /**
    * @param {string} cid The CID to get pin status information for.
-   * @param {import('../index').RequestOptions} [options]
-   * @returns {Promise<import('../index').PinResponse>}
+   * @param {API.RequestOptions} [options]
+   * @returns {Promise<API.PinResponse>}
    */
   allocation(cid, options) {
     return allocation(this, cid, options)
@@ -317,15 +318,15 @@ export class Cluster {
 
   /**
    * @param {string} cid The CID to get pin status information for.
-   * @param {import('../index').RecoverOptions} [options]
-   * @returns {Promise<import('../index').StatusResponse>}
+   * @param {API.RecoverOptions} [options]
+   * @returns {Promise<API.StatusResponse>}
    */
   recover(cid, options) {
     return recover(this, cid, options)
   }
 
   /**
-   * @param {import('../index').RequestOptions} [options]
+   * @param {API.RequestOptions} [options]
    * @returns {Promise<string[]>}
    */
   metricNames(options) {
@@ -334,7 +335,7 @@ export class Cluster {
 }
 
 /**
- * @param {import('../index').AddParams} options
+ * @param {API.AddParams} options
  */
 const encodeAddParams = (options = {}) =>
   encodeParams({
@@ -362,7 +363,7 @@ const encodeAddParams = (options = {}) =>
   })
 
 /**
- * @param {import('../index').PinOptions} options
+ * @param {API.PinOptions} options
  */
 const encodePinOptions = (options = {}) =>
   encodeParams({
@@ -396,7 +397,7 @@ const encodeParams = (options) =>
 
 /**
  * @param {any} data
- * @returns {import('../index').PinResponse}
+ * @returns {API.PinResponse}
  */
 const toPinResponse = (data) => {
   return {
@@ -423,3 +424,5 @@ const toPinResponse = (data) => {
  * @returns
  */
 const getName = (file) => file.name
+
+export { API }

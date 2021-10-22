@@ -11,6 +11,7 @@
       "types": "./dist/src/index.d.ts"
     },
     "./interface": {
+      "import": "./src/interface.js",
       "types": "./dist/src/interface.d.ts"
     }
   },
