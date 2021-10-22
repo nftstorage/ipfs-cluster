@@ -44,27 +44,27 @@ Object.assign(global, { fetch, File, Blob, FormData })
 
 This library is **WIP** and not _all_ cluster HTTP API methods are available yet (PR's welcome!). Please see the [typescript types](https://github.com/nftstorage/ipfs-cluster/blob/main/index.d.ts) for full parameter and return types.
 
-* [Constructor](#constructor)
-* [`add`](#add)
-* [`addDirectory`](#adddirectory)
-* `alerts`
-* [`allocations`](#allocations)
-* `id`
-* `metrics`
-* [`metricNames`](#metricNames)
-* `peerList`
-* `peerAdd`
-* `peerRemove`
-* [`pin`](#pin)
-* `pinPath`
-* [`recover`](#recover)
-* `recoverAll`
-* `repoGC`
-* [`status`](#status)
-* `statusAll`
-* `version`
-* [`unpin`](#unpin)
-* `unpinPath`
+- [Constructor](#constructor)
+- [`add`](#add)
+- [`addDirectory`](#adddirectory)
+- `alerts`
+- [`allocations`](#allocations)
+- `id`
+- `metrics`
+- [`metricNames`](#metricNames)
+- `peerList`
+- `peerAdd`
+- `peerRemove`
+- [`pin`](#pin)
+- `pinPath`
+- [`recover`](#recover)
+- `recoverAll`
+- `repoGC`
+- [`status`](#status)
+- `statusAll`
+- `version`
+- [`unpin`](#unpin)
+- `unpinPath`
 
 ### Constructor
 
@@ -103,10 +103,7 @@ const { cid } = await cluster.add(car)
 Imports multiple files to the cluster. First argument must be an array of `File` or `Blob`.
 
 ```js
-const files = [
-  new File(['foo'], 'foo.txt'),
-  new File(['bar'], 'bar.txt'),
-]
+const files = [new File(['foo'], 'foo.txt'), new File(['bar'], 'bar.txt')]
 const dir = await cluster.addDirectory(file)
 
 for (const entry of dir) {

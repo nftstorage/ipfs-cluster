@@ -23,25 +23,24 @@ version: '3.4'
 # |-- ipfs0
 # |-- ipfs1
 # |-- ...
-# 
+#
 # During the first start, default configurations are created for all peers.
 
 services:
-
-##################################################################################
-## Cluster PEER 0 ################################################################
-##################################################################################
+  ##################################################################################
+  ## Cluster PEER 0 ################################################################
+  ##################################################################################
 
   ipfs0:
     container_name: ipfs0
     image: ipfs/go-ipfs:latest
-#   ports:
-#     - "4001:4001" # ipfs swarm - expose if needed/wanted
-#     - "5001:5001" # ipfs api - expose if needed/wanted
-#     - "8080:8080" # ipfs gateway - expose if needed/wanted
+    #   ports:
+    #     - "4001:4001" # ipfs swarm - expose if needed/wanted
+    #     - "5001:5001" # ipfs api - expose if needed/wanted
+    #     - "8080:8080" # ipfs gateway - expose if needed/wanted
     volumes:
       - ./compose/ipfs0:/data/ipfs
-      
+
   cluster0:
     container_name: cluster0
     image: ipfs/ipfs-cluster:latest
@@ -55,20 +54,20 @@ services:
       CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094 # Expose API
       CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
     ports:
-          # Open API port (allows ipfs-cluster-ctl usage on host)
-          - "127.0.0.1:9094:9094"
-          # The cluster swarm port would need  to be exposed if this container
-          # was to connect to cluster peers on other hosts.
-          # But this is just a testing cluster.
-          # - "9096:9096" # Cluster IPFS Proxy endpoint
+      # Open API port (allows ipfs-cluster-ctl usage on host)
+      - '127.0.0.1:9094:9094'
+      # The cluster swarm port would need  to be exposed if this container
+      # was to connect to cluster peers on other hosts.
+      # But this is just a testing cluster.
+      # - "9096:9096" # Cluster IPFS Proxy endpoint
     volumes:
       - ./compose/cluster0:/data/ipfs-cluster
 
-##################################################################################
-## Cluster PEER 1 ################################################################
-##################################################################################
+  ##################################################################################
+  ## Cluster PEER 1 ################################################################
+  ##################################################################################
 
-# See Cluster PEER 0 for comments (all removed here and below)
+  # See Cluster PEER 0 for comments (all removed here and below)
   ipfs1:
     container_name: ipfs1
     image: ipfs/go-ipfs:latest
@@ -89,11 +88,11 @@ services:
     volumes:
       - ./compose/cluster1:/data/ipfs-cluster
 
-##################################################################################
-## Cluster PEER 2 ################################################################
-##################################################################################
+  ##################################################################################
+  ## Cluster PEER 2 ################################################################
+  ##################################################################################
 
-# See Cluster PEER 0 for comments (all removed here and below)
+  # See Cluster PEER 0 for comments (all removed here and below)
   ipfs2:
     container_name: ipfs2
     image: ipfs/go-ipfs:latest
@@ -113,6 +112,5 @@ services:
       CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
     volumes:
       - ./compose/cluster2:/data/ipfs-cluster
-
 # For adding more peers, copy PEER 1 and rename things to ipfs2, cluster2.
 # Keep bootstrapping to cluster0.

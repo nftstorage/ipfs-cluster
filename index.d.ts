@@ -5,10 +5,20 @@ export class Cluster {
   constructor(url: URL | string, options?: { headers?: Record<string, string> })
   /**
    * Import a file to the cluster. First argument must be a `File` or `Blob`.
-   * CAR files are supported with blob `type` set to `application/car`.
    * Note: by default this module uses v1 CIDs and raw leaves enabled.
    */
   add(file: File | Blob, options?: AddParams): Promise<AddResponse>
+
+  /**
+   * Imports blocks encoded in the given CAR file and pins them (similarly to
+   * ipfs dag import). At the moment only CAR files MUST have only one root (the
+   * one that will be pinned). . CAR files allow adding arbitrary IPLD-DAGs
+   * through the Cluster API.
+   *
+   * @param car
+   * @param options
+   */
+  addCAR(car: Blob, options?: AddCarParams): Promise<AddResponse>
   /**
    * Imports multiple files to the cluster. First argument must be an array of
    * `File` or `Blob`. Note: by default this module uses v1 CIDs and raw leaves
@@ -108,6 +118,10 @@ export type AddParams = PinOptions &
     streamChannels?: boolean
     format?: string
   }
+
+export type AddCarParams = PinOptions & {
+  streamChannels?: boolean
+}
 
 export enum PinType {
   /**
