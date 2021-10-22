@@ -7,7 +7,7 @@ import { File, Blob } from '@web-std/file'
 import { Cluster } from '@nftstorage/ipfs-cluster'
 import { CarWriter } from '@ipld/car'
 import * as CBOR from '@ipld/dag-cbor'
-import { CID } from 'multiformats'
+import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 Object.assign(global, { fetch, File, Blob, FormData })
@@ -69,27 +69,27 @@ describe('cluster.addDirectory', () => {
   it('adds a directory of files', async () => {
     const cluster = new Cluster(URL)
     const files = [new File(['foo'], 'foo.txt'), new File(['bar'], 'bar.txt')]
-    const dir = await cluster.addDirectory(files)
+    const [foo, bar, dir] = await cluster.addDirectory(files)
 
-    assert.equal(dir[0].name, files[0].name)
-    assert.equal(dir[0].size, 3)
+    assert.equal(foo?.name, 'foo')
+    assert.equal(foo?.size, 3)
     assert.equal(
-      dir[0].cid,
+      foo?.cid,
       'bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy'
     )
 
-    assert.equal(dir[1].name, files[1].name)
-    assert.equal(dir[1].size, 3)
+    assert.equal(bar?.name, 'bar')
+    assert.equal(bar?.size, 3)
     assert.equal(
-      dir[1].cid,
+      bar?.cid,
       'bafkreih43yvs5w5fnp2aqya7w4q75g24gogrb3sct2qe7lsvcg3i7p4pxe'
     )
 
     // (wrapper directory)
-    assert.equal(dir[2].name, '')
-    assert.equal(dir[2].size, 112)
+    assert.equal(dir?.name, '')
+    assert.equal(dir?.size, 112)
     assert.equal(
-      dir[2].cid,
+      dir?.cid,
       'bafybeidhbfwu4j2zckkqd42azgxm7hlvjjqj7dunvv7o7c3avyrhgtvppm'
     )
   })
