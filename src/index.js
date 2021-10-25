@@ -214,8 +214,8 @@ export const metricNames = (cluster, { signal } = {}) =>
  * @param {BodyInit} [options.body]
  * @param {AbortSignal} [options.signal]
  */
-const request = async (cluster, path, { method, params, body, signal }) => {
-  const endpoint = new URL(path, cluster.url)
+const request = async ({ url, headers }, path, { method, params, body, signal }) => {
+  const endpoint = new URL(path, url)
   for (const [key, value] of Object.entries(params || {})) {
     if (value != null) {
       endpoint.searchParams.set(key, String(value))
@@ -224,6 +224,7 @@ const request = async (cluster, path, { method, params, body, signal }) => {
 
   const response = await fetch(endpoint.href, {
     method,
+    headers,
     body,
     signal
   })
