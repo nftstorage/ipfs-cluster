@@ -25,7 +25,7 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
       # if you are using Yarn, substitute the command below with `yarn install --frozen-lockfile`
       - name: Install
-        if: ${{ steps.tag-release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created }}
         uses: bahmutov/npm-install@v1
       - run: Publish
         if: ${{ steps.release.outputs.release_created }}
