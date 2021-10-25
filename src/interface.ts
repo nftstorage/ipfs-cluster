@@ -75,6 +75,7 @@ export type AddParams = PinOptions &
 
 export type AddCarParams = PinOptions & {
   streamChannels?: boolean
+  local?: boolean
 }
 
 export enum PinType {
