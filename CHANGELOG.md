@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.4.3](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.2...v3.4.3) (2021-10-25)
+
+
+### Bug Fixes
+
+* pass headers ([#23](https://www.github.com/nftstorage/ipfs-cluster/issues/23)) ([732ad49](https://www.github.com/nftstorage/ipfs-cluster/commit/732ad49dcf5a4d8ba73fd79ecb369618006bc481))
+
 ### [3.4.2](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.1...v3.4.2) (2021-10-25)
 
 
