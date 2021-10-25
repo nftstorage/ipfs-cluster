@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.4.1](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.0...v3.4.1) (2021-10-25)
+
+
+### Bug Fixes
+
+* expose `local` option ([#18](https://www.github.com/nftstorage/ipfs-cluster/issues/18)) ([037786b](https://www.github.com/nftstorage/ipfs-cluster/commit/037786b6790ff8ae4d4ee797235475d4a8e58096))
+
 ## [3.4.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.3.1...v3.4.0) (2021-10-22)
 
 
