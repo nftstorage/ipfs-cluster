@@ -128,7 +128,10 @@ describe('cluster.addDirectory', () => {
 
     assert.equal(file?.size, car.size)
 
-    console.log(dir)
+    assert.equal(
+      dir?.cid,
+      'bafybeigb72yomjwb4skbiq2ksjujly32ijq3a4jawxfc7q2gbhbe7m4rm4'
+    )
   })
 })
 
