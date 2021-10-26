@@ -92,6 +92,44 @@ describe('cluster.addDirectory', () => {
       'bafybeidhbfwu4j2zckkqd42azgxm7hlvjjqj7dunvv7o7c3avyrhgtvppm'
     )
   })
+
+  it('cars files are added as any other binary file', async () => {
+    const cluster = new Cluster(URL)
+    const message = CBOR.encode({ hello: 'world' })
+    const link = CID.createV1(CBOR.code, await sha256.digest(message))
+
+    const dag = CBOR.encode({
+      to: 'world',
+      message: link
+    })
+    const cid = CID.createV1(CBOR.code, await sha256.digest(dag))
+
+    const { writer, out } = CarWriter.create([cid])
+    writer.put({ cid, bytes: dag })
+    writer.put({ cid: link, bytes: message })
+    writer.close()
+
+    const parts = []
+    for await (const chunk of out) {
+      parts.push(chunk)
+    }
+    const car = new Blob(parts, { type: 'application/car' })
+
+    const result = await cluster.addDirectory([car])
+
+    assert.equal(result.length, 2, 'should be just file and dir')
+    const [file, dir] = result
+
+    assert.equal(file?.name, 'blob')
+    assert.equal(
+      file?.cid,
+      'bafkreiegp2z6crgmgywbndbozu5i7qmgwbkyom5pthjh7hlnbx53jr2ov4'
+    )
+
+    assert.equal(file?.size, car.size)
+
+    console.log(dir)
+  })
 })
 
 describe('cluster.addCAR', () => {
