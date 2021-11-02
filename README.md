@@ -46,6 +46,7 @@ This library is **WIP** and not _all_ cluster HTTP API methods are available yet
 
 - [Constructor](#constructor)
 - [`add`](#add)
+- [`addCAR`](#addcar)
 - [`addDirectory`](#adddirectory)
 - `alerts`
 - [`allocations`](#allocations)
@@ -89,11 +90,13 @@ const { cid } = await cluster.add(file)
 
 Note: by default this module uses v1 CIDs and raw leaves enabled.
 
+### `addCAR`
+
 Alternatively you can import data from a [CAR (Content Addressable aRchive)](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md) file:
 
 ```js
 const car = new Blob(carFileData, { type: 'application/car' })
-const { cid } = await cluster.add(car)
+const { cid } = await cluster.addCAR(car)
 ```
 
 [More information on reading and writing CAR files in JS](https://github.com/ipld/js-car#readme).
