@@ -16,10 +16,15 @@ Object.assign(global, { fetch, File, Blob, FormData })
 // https://cluster.ipfs.io/documentation/quickstart/
 // TODO: how to run on CI?
 const URL = 'http://127.0.0.1:9094'
+const SECRET = btoa('user:secret')
 
 describe('cluster.add', () => {
   it('adds a file', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(URL, {
+      headers: { Authorization: `Basic ${SECRET}` }
+    })
+    console.log(cluster)
+
     const file = new File(['foo'], 'foo.txt')
     const result = await cluster.add(file)
     assert.equal(result.name, file.name)
