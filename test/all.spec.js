@@ -22,6 +22,19 @@ const config = {
   }
 }
 
+describe('cluster.version', () => {
+  it('gets cluster version (static)', async () => {
+    const version = await cluster.version(config)
+    assertField({ version }, 'version')
+  })
+
+  it('gets cluster version (method)', async () => {
+    const cluster = new Cluster(config.url, config)
+    const version = await cluster.version()
+    assertField({ version }, 'version')
+  })
+})
+
 describe('cluster.add', () => {
   it('adds a file', async () => {
     const cluster = new Cluster(config.url, config)
@@ -250,19 +263,6 @@ describe('cluster.metricNames', () => {
     const names = await cluster.metricNames()
     assert.ok(Array.isArray(names))
     names.forEach((n) => assert.equal(typeof n, 'string'))
-  })
-})
-
-describe('cluster.version', () => {
-  it('gets cluster version (static)', async () => {
-    const version = await cluster.version(config)
-    assertField({ version }, 'version')
-  })
-
-  it('gets cluster version (method)', async () => {
-    const cluster = new Cluster(config.url, config)
-    const version = await cluster.version()
-    assertField({ version }, 'version')
   })
 })
 
