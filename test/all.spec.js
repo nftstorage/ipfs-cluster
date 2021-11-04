@@ -286,6 +286,43 @@ describe('cluster auth', () => {
   })
 })
 
+describe('cluster.info', () => {
+  /**
+   * @param {cluster.API.ClusterInfo} info
+   */
+  const assertInfo = (info) => {
+    assertField(info, 'id')
+    assertField(info, 'version')
+    assert.equal(typeof info.commit, 'string')
+    assertField(info, 'peername')
+    assertField(info, 'rpcProtocolVersion')
+    assert.ok(Array.isArray(info.addresses), 'addresses is array')
+    assert.ok(Array.isArray(info.clusterPeers), 'clusterPeers is an array')
+    assert.ok(
+      Array.isArray(info.clusterPeersAddresses),
+      'clusterPeersAddresses is array'
+    )
+
+    const { ipfs } = info
+
+    assertField(ipfs, 'id')
+    assert.ok(ipfs.addresses)
+    assert.equal(typeof info.version, 'string', 'version is a string')
+    assert.ok(info.version.length > 0, 'version is non empty string')
+  }
+
+  it('gets cluster id (static)', async () => {
+    const info = await cluster.info(config)
+    assertInfo(info)
+  })
+
+  it('gets cluster version (method)', async () => {
+    const cluster = new Cluster(config.url, config)
+    const info = await cluster.info()
+    assertInfo(info)
+  })
+})
+
 /**
  * @param {any} info
  * @param {string|number} key

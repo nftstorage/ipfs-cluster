@@ -29,6 +29,51 @@ export const version = async (cluster, { signal } = {}) => {
 }
 
 /**
+ * Gets cluster information
+ *
+ * @param {API.Config} cluster
+ * @param {API.RequestOptions} [options]
+ * @returns {Promise<API.ClusterInfo>}
+ */
+export const info = async (cluster, { signal } = {}) => {
+  const result = await request(cluster, 'id', {
+    method: 'GET',
+    signal
+  })
+
+  const failure = result.error || result.ipfs?.error || ''
+  if (failure.length > 0) {
+    throw new Error(
+      `cluster id response has failure: ${JSON.stringify(result, null, 2)}`
+    )
+  }
+
+  const {
+    id,
+    addresses,
+    version,
+    commit,
+    peername,
+    rpc_protocol_version: rpcProtocolVersion,
+    cluster_peers: clusterPeers,
+    cluster_peers_addresses: clusterPeersAddresses,
+    ipfs
+  } = result
+
+  return {
+    id,
+    addresses,
+    version,
+    commit,
+    peername,
+    rpcProtocolVersion,
+    clusterPeers,
+    clusterPeersAddresses,
+    ipfs
+  }
+}
+
+/**
  * Import a file to the cluster. First argument must be a `File` or `Blob`.
  * Note: by default this module uses v1 CIDs and raw leaves enabled.
  *
@@ -292,6 +337,15 @@ export class Cluster {
   version(options) {
     return version(this, options)
   }
+
+  /**
+   * @param {API.RequestOptions} [options]
+   * @returns {Promise<API.ClusterInfo>}
+   */
+  info(options) {
+    return info(this, options)
+  }
+
   /**
    * @param {File|Blob} file
    * @param {API.AddParams} [options]
