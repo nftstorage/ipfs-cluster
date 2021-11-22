@@ -53,7 +53,7 @@ export const info = async (cluster, { signal } = {}) => {
     addresses,
     version,
     commit,
-    peername,
+    peername: peerName,
     rpc_protocol_version: rpcProtocolVersion,
     cluster_peers: clusterPeers,
     cluster_peers_addresses: clusterPeersAddresses,

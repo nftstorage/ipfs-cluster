@@ -225,7 +225,7 @@ export interface PeerInfo {
 export interface ClusterInfo extends PeerInfo {
   version: string
   commit: string
-  peername: string
+  peerName: string
   rpcProtocolVersion: string
   clusterPeers: string[]
   clusterPeersAddresses: string[]

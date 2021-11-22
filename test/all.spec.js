@@ -294,7 +294,7 @@ describe('cluster.info', () => {
     assertField(info, 'id')
     assertField(info, 'version')
     assert.equal(typeof info.commit, 'string')
-    assertField(info, 'peername')
+    assertField(info, 'peerName')
     assertField(info, 'rpcProtocolVersion')
     assert.ok(Array.isArray(info.addresses), 'addresses is array')
     assert.ok(Array.isArray(info.clusterPeers), 'clusterPeers is an array')
