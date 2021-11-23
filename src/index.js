@@ -1,6 +1,33 @@
 /* eslint-env browser */
 
 import * as API from './interface.js'
+
+/**
+ * Gets cluster version
+ *
+ * @param {API.Config} cluster
+ * @param {API.RequestOptions} [options]
+ * @returns {Promise<string>}
+ */
+export const version = async (cluster, { signal } = {}) => {
+  const result = await request(cluster, 'version', {
+    method: 'GET',
+    signal
+  })
+
+  if (typeof result.version !== 'string') {
+    throw new Error(
+      `failed to parse version from response the body: ${JSON.stringify(
+        result,
+        null,
+        2
+      )}`
+    )
+  }
+
+  return result.version
+}
+
 /**
  * Import a file to the cluster. First argument must be a `File` or `Blob`.
  * Note: by default this module uses v1 CIDs and raw leaves enabled.
@@ -214,7 +241,11 @@ export const metricNames = (cluster, { signal } = {}) =>
  * @param {BodyInit} [options.body]
  * @param {AbortSignal} [options.signal]
  */
-const request = async ({ url, headers }, path, { method, params, body, signal }) => {
+const request = async (
+  { url, headers },
+  path,
+  { method, params, body, signal }
+) => {
   const endpoint = new URL(path, url)
   for (const [key, value] of Object.entries(params || {})) {
     if (value != null) {
@@ -255,6 +286,12 @@ export class Cluster {
     this.headers = headers
   }
 
+  /**
+   * @param {API.RequestOptions} [options]
+   */
+  version(options) {
+    return version(this, options)
+  }
   /**
    * @param {File|Blob} file
    * @param {API.AddParams} [options]

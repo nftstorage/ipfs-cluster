@@ -52,6 +52,7 @@ services:
       CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/ipfs0/tcp/5001
       CLUSTER_CRDT_TRUSTEDPEERS: '*' # Trust all peers in Cluster
       CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094 # Expose API
+      CLUSTER_RESTAPI_BASICAUTHCREDENTIALS: user:secret # Require basic auth
       CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
     ports:
       # Open API port (allows ipfs-cluster-ctl usage on host)

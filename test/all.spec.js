@@ -5,6 +5,7 @@ import fetch from '@web-std/fetch'
 import { FormData } from '@web-std/form-data'
 import { File, Blob } from '@web-std/file'
 import { Cluster } from '@nftstorage/ipfs-cluster'
+import * as cluster from '@nftstorage/ipfs-cluster'
 import { CarWriter } from '@ipld/car'
 import * as CBOR from '@ipld/dag-cbor'
 import { CID } from 'multiformats/cid'
@@ -12,14 +13,32 @@ import { sha256 } from 'multiformats/hashes/sha2'
 
 Object.assign(global, { fetch, File, Blob, FormData })
 
-// Run the test cluster quickstart to test:
-// https://cluster.ipfs.io/documentation/quickstart/
-// TODO: how to run on CI?
-const URL = 'http://127.0.0.1:9094'
+// To run tests locally make sure you have cluster running,
+// which you can do by running `yarn start`
+const config = {
+  url: new URL('http://127.0.0.1:9094'),
+  headers: {
+    Authorization: `Basic ${btoa('user:secret')}`
+  }
+}
+
+describe('cluster.version', () => {
+  it('gets cluster version (static)', async () => {
+    const version = await cluster.version(config)
+    assertField({ version }, 'version')
+  })
+
+  it('gets cluster version (method)', async () => {
+    const cluster = new Cluster(config.url, config)
+    const version = await cluster.version()
+    assertField({ version }, 'version')
+  })
+})
 
 describe('cluster.add', () => {
   it('adds a file', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
+
     const file = new File(['foo'], 'foo.txt')
     const result = await cluster.add(file)
     assert.equal(result.name, file.name)
@@ -30,8 +49,19 @@ describe('cluster.add', () => {
     assert.equal(result.size, 3)
   })
 
+  it('add a file via static API', async () => {
+    const file = new File(['bar'], 'bar.txt')
+    const result = await cluster.add(config, file)
+    assert.equal(result.name, file.name)
+    assert.equal(
+      result.cid,
+      'bafkreih43yvs5w5fnp2aqya7w4q75g24gogrb3sct2qe7lsvcg3i7p4pxe'
+    )
+    assert.equal(result.size, 3)
+  })
+
   it('cars files are added as any other binary file', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const message = CBOR.encode({ hello: 'world' })
     const link = CID.createV1(CBOR.code, await sha256.digest(message))
 
@@ -66,7 +96,7 @@ describe('cluster.add', () => {
 
 describe('cluster.addDirectory', () => {
   it('adds a directory of files', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const files = [new File(['foo'], 'foo.txt'), new File(['bar'], 'bar.txt')]
     const [foo, bar, dir] = await cluster.addDirectory(files)
 
@@ -94,7 +124,7 @@ describe('cluster.addDirectory', () => {
   })
 
   it('cars files are added as any other binary file', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const message = CBOR.encode({ hello: 'world' })
     const link = CID.createV1(CBOR.code, await sha256.digest(message))
 
@@ -137,7 +167,7 @@ describe('cluster.addDirectory', () => {
 
 describe('cluster.addCAR', () => {
   it('import car file', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const message = CBOR.encode({ hello: 'world' })
     const link = CID.createV1(CBOR.code, await sha256.digest(message))
 
@@ -167,7 +197,7 @@ describe('cluster.addCAR', () => {
 })
 describe('cluster.pin', () => {
   it('pins a CID', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const name = `name-${Date.now()}`
@@ -179,7 +209,7 @@ describe('cluster.pin', () => {
   })
 
   it('gets pin status', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const status = await cluster.status(cid)
@@ -193,7 +223,7 @@ describe('cluster.pin', () => {
 
 describe('cluster.allocation', () => {
   it('gets pin allocation', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const file = new File(['foo'], 'foo.txt')
     const metadata = { meta: `test-${Date.now()}` }
     const { cid } = await cluster.add(file, { metadata })
@@ -204,7 +234,7 @@ describe('cluster.allocation', () => {
 
 describe('cluster.recover', () => {
   it('recovers an errored pin', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const status = await cluster.recover(cid)
@@ -218,7 +248,7 @@ describe('cluster.recover', () => {
 
 describe('cluster.unpin', () => {
   it('unpins a CID', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const file = new File(['foo'], 'foo.txt')
     const { cid } = await cluster.add(file)
     const result = await cluster.unpin(cid)
@@ -229,9 +259,39 @@ describe('cluster.unpin', () => {
 
 describe('cluster.metricNames', () => {
   it('gets metric names', async () => {
-    const cluster = new Cluster(URL)
+    const cluster = new Cluster(config.url, config)
     const names = await cluster.metricNames()
     assert.ok(Array.isArray(names))
     names.forEach((n) => assert.equal(typeof n, 'string'))
   })
 })
+
+describe('cluster auth', () => {
+  /**
+   *
+   * @param {Promise<any>} input
+   */
+  const assertUnauthorized = async (input) => {
+    const result = await input.catch((error) => error)
+    assert.instance(result, Error)
+    assert.match(result.message, /Unauthorized/)
+  }
+
+  it('requires auth (static)', async () => {
+    await assertUnauthorized(cluster.version({ url: config.url }))
+  })
+
+  it('requires auth (method)', async () => {
+    await assertUnauthorized(new Cluster(config.url).version())
+  })
+})
+
+/**
+ * @param {any} info
+ * @param {string|number} key
+ */
+const assertField = (info, key) => {
+  const value = info[key]
+  assert.equal(typeof value, 'string', `${key} is a string`)
+  assert.ok(value.length || 0 > 0, `${key} is non empty string`)
+}
