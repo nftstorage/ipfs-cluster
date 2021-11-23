@@ -216,3 +216,18 @@ export enum TrackerStatus {
    */
   SHARDED = 'sharded'
 }
+
+export interface PeerInfo {
+  id: string
+  addresses: string[]
+}
+
+export interface ClusterInfo extends PeerInfo {
+  version: string
+  commit: string
+  peerName: string
+  rpcProtocolVersion: string
+  clusterPeers: string[]
+  clusterPeersAddresses: string[]
+  ipfs: PeerInfo
+}
