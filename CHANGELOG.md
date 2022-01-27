@@ -1,5 +1,12 @@
 # Changelog
 
+### [3.5.1](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.5.0...v3.5.1) (2022-01-27)
+
+
+### Bug Fixes
+
+* wait longer for Cluster ready ([1d434cb](https://www.github.com/nftstorage/ipfs-cluster/commit/1d434cb61e0a14e5ef849ba04bacfa629ccc01d9))
+
 ## [3.5.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.3...v3.5.0) (2022-01-27)
 
 
