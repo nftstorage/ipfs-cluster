@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.5.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.3...v3.5.0) (2022-01-27)
+
+
+### Features
+
+* add info api ([#29](https://www.github.com/nftstorage/ipfs-cluster/issues/29)) ([ceb5f85](https://www.github.com/nftstorage/ipfs-cluster/commit/ceb5f855e9ef3d3d8d5edc88c2d7b4ceb7a91271))
+
+
+### Bug Fixes
+
+* default fetch method to GET ([#32](https://www.github.com/nftstorage/ipfs-cluster/issues/32)) ([980cecf](https://www.github.com/nftstorage/ipfs-cluster/commit/980cecfe2731700fe594ca181a548172cc64f17e))
+* lock ipfs version until fixed ([#33](https://www.github.com/nftstorage/ipfs-cluster/issues/33)) ([00605d2](https://www.github.com/nftstorage/ipfs-cluster/commit/00605d27d773b52ecccaf06b87a813bfe909b83e))
+
 ### [3.4.3](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.2...v3.4.3) (2021-10-25)
 
 
