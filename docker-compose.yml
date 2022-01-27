@@ -33,7 +33,8 @@ services:
 
   ipfs0:
     container_name: ipfs0
-    image: ipfs/go-ipfs:latest
+    # revert to latest when https://github.com/ipfs/go-ipfs/issues/8645 resolved
+    image: ipfs/go-ipfs:v0.10.0
     #   ports:
     #     - "4001:4001" # ipfs swarm - expose if needed/wanted
     #     - "5001:5001" # ipfs api - expose if needed/wanted
