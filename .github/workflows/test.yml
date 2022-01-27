@@ -35,7 +35,7 @@ jobs:
         run: docker-compose -f "docker-compose.yml" up -d --build
 
       - name: Wait for IPFS Cluster ready
-        run: sleep 5
+        run: sleep 10
 
       - name: Install node
         uses: actions/setup-node@v2
