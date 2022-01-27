@@ -1,6 +1,6 @@
 {
   "name": "@nftstorage/ipfs-cluster",
-  "version": "3.4.3",
+  "version": "3.5.0",
   "description": "A zero-dependency client to the IPFS Cluster HTTP API, built for the browser.",
   "main": "./src/index.js",
   "type": "module",
