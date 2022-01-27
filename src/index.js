@@ -299,7 +299,7 @@ const request = async (
   }
 
   const response = await fetch(endpoint.href, {
-    method,
+    method: method || 'GET',
     headers,
     body,
     signal
