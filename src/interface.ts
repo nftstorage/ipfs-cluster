@@ -149,6 +149,11 @@ export interface StatusOptions extends RequestOptions {
   local?: boolean
 }
 
+export interface StatusAllOptions extends RequestOptions {
+  local?: boolean
+  filter?: TrackerStatus[]
+}
+
 export type RecoverOptions = StatusOptions
 
 export type StatusResponse = {

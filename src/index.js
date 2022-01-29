@@ -224,6 +224,80 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
 
 /**
  * @param {API.Config} cluster
+ * @param {API.StatusAllOptions} [options]
+ * @returns {AsyncIterable<API.StatusResponse>}
+ */
+export const statusAll = async function* (cluster, options) {
+  options = options || {}
+
+  const endpoint = new URL('pins', cluster.url)
+  for (const filter of options.filter || []) {
+    endpoint.searchParams.append('filter', filter)
+  }
+
+  const res = await fetch(endpoint.toString(), {
+    method: 'POST',
+    signal: options.signal
+  })
+
+  if (!res.ok) {
+    throw Object.assign(new Error(`unexpected status: ${res.status}`), {
+      response: res
+    })
+  }
+
+  const { body } = res
+  if (!body) {
+    throw new Error('missing response body')
+  }
+
+  for await (const rawStatus of ndjson(body)) {
+    let peerMap = data.peer_map
+    if (peerMap) {
+      peerMap = Object.fromEntries(
+        Object.entries(peerMap).map(([k, v]) => [
+          k,
+          {
+            peerName: v.peername,
+            status: v.status,
+            timestamp: new Date(v.timestamp),
+            error: v.error
+          }
+        ])
+      )
+    }
+    yield status
+  }
+}
+
+/**
+ * @param {ReadableStream<Uint8Array>} readable
+ */
+async function* ndjson(readable) {
+  const reader = readable.getReader()
+  const matcher = /\r?\n/
+  const decoder = new TextDecoder('utf8')
+  let buffer = ''
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      const chunk = value
+      buffer += decoder.decode(chunk, { stream: true })
+      const parts = buffer.split(matcher)
+      buffer = parts.pop()
+      for (let i = 0; i < parts.length; i++) yield JSON.parse(parts[i])
+    }
+  } finally {
+    reader.releaseLock()
+  }
+  buffer += decoder.decode()
+  if (buffer) yield JSON.parse(buffer)
+}
+
+/**
+ * @param {API.Config} cluster
  * @param {string} cid The CID to get pin status information for.
  * @param {API.RequestOptions} [options]
  * @returns {Promise<API.PinResponse>}
@@ -277,7 +351,6 @@ export const metricNames = (cluster, { signal } = {}) =>
   request(cluster, 'monitor/metrics', { signal })
 
 /**
- *
  * @param {API.Config} cluster
  * @param {string} path
  * @param {Object} [options]
@@ -317,6 +390,7 @@ const request = async (
 
 export class Cluster {
   /**
+   * Create a new instance of the cluster client.
    * @param {URL|string} url Cluster HTTP API root URL.
    * @param {{ headers?: Record<string, string> }} [options]
    */
@@ -332,6 +406,7 @@ export class Cluster {
   }
 
   /**
+   * Get Cluster version.
    * @param {API.RequestOptions} [options]
    */
   version(options) {
@@ -339,6 +414,7 @@ export class Cluster {
   }
 
   /**
+   * Get Cluster peer information.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<API.ClusterInfo>}
    */
@@ -347,6 +423,8 @@ export class Cluster {
   }
 
   /**
+   * Import a file to the cluster. First argument must be a `File` or `Blob`.
+   * Note: by default this module uses v1 CIDs and raw leaves enabled.
    * @param {File|Blob} file
    * @param {API.AddParams} [options]
    */
@@ -355,6 +433,9 @@ export class Cluster {
   }
 
   /**
+   * Imports multiple files to the cluster. First argument must be an array of
+   * `File` or `Blob`. Note: by default this module uses v1 CIDs and raw leaves
+   * enabled.
    * @param {Iterable<File|Blob>} files
    * @param {API.PinOptions} [options]
    * @returns {Promise<API.AddDirectoryResponse>}
@@ -364,6 +445,10 @@ export class Cluster {
   }
 
   /**
+   * Imports blocks encoded in the given CAR file and pins them (similarly to
+   * ipfs dag import). At the moment only CAR files MUST have only one root (the
+   * one that will be pinned). . CAR files allow adding arbitrary IPLD-DAGs
+   * through the Cluster API.
    * @param {Blob} car
    * @param {API.AddParams} [options]
    * @returns {Promise<API.AddResponse>}
@@ -373,6 +458,8 @@ export class Cluster {
   }
 
   /**
+   * Tracks a CID with the given replication factor and a name for
+   * human-friendliness.
    * @param {string} cid CID or IPFS/IPNS path to pin to the cluster.
    * @param {API.PinOptions} [options]
    * @returns {Promise<API.PinResponse>}
@@ -382,6 +469,7 @@ export class Cluster {
   }
 
   /**
+   * Untracks a CID from cluster.
    * @param {string} cid CID or IPFS/IPNS path to unpin from the cluster.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<API.PinResponse>}
@@ -391,6 +479,7 @@ export class Cluster {
   }
 
   /**
+   * Returns the current IPFS state for a given CID.
    * @param {string} cid The CID to get pin status information for.
    * @param {API.StatusOptions} [options]
    * @returns {Promise<API.StatusResponse>}
@@ -400,6 +489,16 @@ export class Cluster {
   }
 
   /**
+   * Status of all tracked CIDs.
+   * @param {API.StatusAllOptions} [options]
+   * @returns {AsyncIterable<API.StatusResponse>}
+   */
+  statusAll(options) {
+    return statusAll(this, options)
+  }
+
+  /**
+   * Returns the current allocation for a given CID.
    * @param {string} cid The CID to get pin status information for.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<API.PinResponse>}
@@ -409,6 +508,7 @@ export class Cluster {
   }
 
   /**
+   * Re-triggers pin or unpin IPFS operations for a CID in error state.
    * @param {string} cid The CID to get pin status information for.
    * @param {API.RecoverOptions} [options]
    * @returns {Promise<API.StatusResponse>}
@@ -418,6 +518,7 @@ export class Cluster {
   }
 
   /**
+   * Get a list of metric types known to the peer.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<string[]>}
    */
