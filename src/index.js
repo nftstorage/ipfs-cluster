@@ -204,96 +204,40 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  let peerMap = data.peer_map
-  if (peerMap) {
-    peerMap = Object.fromEntries(
-      Object.entries(peerMap).map(([k, v]) => [
-        k,
-        {
-          peerName: v.peername,
-          status: v.status,
-          timestamp: new Date(v.timestamp),
-          error: v.error
-        }
-      ])
-    )
-  }
-
-  return { cid: data.cid['/'], name: data.name, peerMap }
+  return toStausResponse(data)
 }
 
 /**
  * @param {API.Config} cluster
  * @param {API.StatusAllOptions} [options]
- * @returns {AsyncIterable<API.StatusResponse>}
+ * @returns {Promise<API.StatusResponse[]>}
  */
-export const statusAll = async function* (cluster, options) {
+export const statusAll = async (cluster, options) => {
   options = options || {}
 
   const endpoint = new URL('pins', cluster.url)
   for (const filter of options.filter || []) {
     endpoint.searchParams.append('filter', filter)
   }
+  if (options.local) {
+    endpoint.searchParams.append('local', 'true')
+  }
 
   const res = await fetch(endpoint.toString(), {
-    method: 'POST',
-    signal: options.signal
+    signal: options.signal,
+    headers: cluster.headers
   })
-
   if (!res.ok) {
     throw Object.assign(new Error(`unexpected status: ${res.status}`), {
       response: res
     })
   }
 
-  const { body } = res
-  if (!body) {
-    throw new Error('missing response body')
+  const data = await res.json()
+  if (!Array.isArray(data)) {
+    throw new Error('response data is not an array')
   }
-
-  for await (const rawStatus of ndjson(body)) {
-    let peerMap = data.peer_map
-    if (peerMap) {
-      peerMap = Object.fromEntries(
-        Object.entries(peerMap).map(([k, v]) => [
-          k,
-          {
-            peerName: v.peername,
-            status: v.status,
-            timestamp: new Date(v.timestamp),
-            error: v.error
-          }
-        ])
-      )
-    }
-    yield status
-  }
-}
-
-/**
- * @param {ReadableStream<Uint8Array>} readable
- */
-async function* ndjson(readable) {
-  const reader = readable.getReader()
-  const matcher = /\r?\n/
-  const decoder = new TextDecoder('utf8')
-  let buffer = ''
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      const chunk = value
-      buffer += decoder.decode(chunk, { stream: true })
-      const parts = buffer.split(matcher)
-      buffer = parts.pop()
-      for (let i = 0; i < parts.length; i++) yield JSON.parse(parts[i])
-    }
-  } finally {
-    reader.releaseLock()
-  }
-  buffer += decoder.decode()
-  if (buffer) yield JSON.parse(buffer)
+  return data.map((d) => toStausResponse(d))
 }
 
 /**
@@ -324,22 +268,7 @@ export const recover = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  let peerMap = data.peer_map
-  if (peerMap) {
-    peerMap = Object.fromEntries(
-      Object.entries(peerMap).map(([k, v]) => [
-        k,
-        {
-          peerName: v.peername,
-          status: v.status,
-          timestamp: new Date(v.timestamp),
-          error: v.error
-        }
-      ])
-    )
-  }
-
-  return { cid: data.cid['/'], name: data.name, peerMap }
+  return toStausResponse(data)
 }
 
 /**
@@ -491,7 +420,7 @@ export class Cluster {
   /**
    * Status of all tracked CIDs.
    * @param {API.StatusAllOptions} [options]
-   * @returns {AsyncIterable<API.StatusResponse>}
+   * @returns {Promise<API.StatusResponse[]>}
    */
   statusAll(options) {
     return statusAll(this, options)
@@ -612,10 +541,55 @@ const toPinResponse = (data) => {
 }
 
 /**
- *
+ * @param {any} data
+ * @returns {API.StatusResponse}
+ */
+const toStausResponse = (data) => {
+  let peerMap = data.peer_map
+  if (peerMap) {
+    peerMap = Object.fromEntries(
+      Object.entries(peerMap).map(([k, v]) => [
+        k,
+        {
+          peerName: v.peername,
+          status: v.status,
+          timestamp: new Date(v.timestamp),
+          error: v.error
+        }
+      ])
+    )
+  }
+  return { cid: data.cid['/'], name: data.name, peerMap }
+}
+
+/**
  * @param {File|(Blob&{name?:string})} file
- * @returns
  */
 const getName = (file) => file.name
+
+/**
+ * @param {ReadableStream<Uint8Array>} readable
+ */
+const ndjsonParse = async function* (readable) {
+  const reader = readable.getReader()
+  const matcher = /\r?\n/
+  const decoder = new TextDecoder('utf8')
+  let buffer = ''
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      const chunk = value
+      buffer += decoder.decode(chunk, { stream: true })
+      const parts = buffer.split(matcher)
+      buffer = parts.pop() || ''
+      for (const part of parts) yield JSON.parse(part)
+    }
+  } finally {
+    reader.releaseLock()
+  }
+  buffer += decoder.decode()
+  if (buffer) yield JSON.parse(buffer)
+}
 
 export { API }

@@ -62,7 +62,7 @@ This library is **WIP** and not _all_ cluster HTTP API methods are available yet
 - `recoverAll`
 - `repoGC`
 - [`status`](#status)
-- `statusAll`
+- [`statusAll`](#statusall)
 - `version`
 - [`unpin`](#unpin)
 - `unpinPath`
@@ -169,6 +169,37 @@ for (const [clusterPeerID, pinInfo] of Object.entries(status.peerMap)) {
   // 12D3KooWKiebn7GqPvjqjKARnm47Xoez6f1civBEWxef3u5G6UdM: pinned
   // 12D3KooWLKdPdFx5UpPNwoVmMXsLULCDegAqXZ7RAgpKuPSMKoSS: pinned
 }
+```
+
+### `statusAll`
+
+Status of all tracked CIDs.
+
+```js
+const statuses = await cluster.statusAll()
+for (const status of statuses) {
+  console.log(`${status.cid}:`)
+  for (const [clusterPeerID, pinInfo] of Object.entries(status.peerMap)) {
+    console.log(`    ${clusterPeerID}: ${pinInfo.status}`)
+  }
+}
+// e.g.
+// bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu:
+//     12D3KooWAjKw14hMUo7wdyEu9KwogrUFCCMiQZApgZ4zMcvtcacj: pinned
+//     12D3KooWKiebn7GqPvjqjKARnm47Xoez6f1civBEWxef3u5G6UdM: pinned
+//     12D3KooWLKdPdFx5UpPNwoVmMXsLULCDegAqXZ7RAgpKuPSMKoSS: pinned
+// bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy:
+//     12D3KooWAjKw14hMUo7wdyEu9KwogrUFCCMiQZApgZ4zMcvtcacj: queued
+//     12D3KooWKiebn7GqPvjqjKARnm47Xoez6f1civBEWxef3u5G6UdM: queued
+//     12D3KooWLKdPdFx5UpPNwoVmMXsLULCDegAqXZ7RAgpKuPSMKoSS: queued
+// ...etc.
+```
+
+Note: The method takes an options object that allows filtering by status e.g.
+
+```js
+// retrieve only pinning and pinned items
+await cluster.statusAll({ filter: ['pinning', 'pinned'] })
 ```
 
 ### `unpin`

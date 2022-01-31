@@ -4,7 +4,7 @@ import * as assert from 'uvu/assert'
 import fetch from '@web-std/fetch'
 import { FormData } from '@web-std/form-data'
 import { File, Blob } from '@web-std/file'
-import { Cluster } from '@nftstorage/ipfs-cluster'
+import { Cluster, TrackerStatus } from '@nftstorage/ipfs-cluster'
 import * as cluster from '@nftstorage/ipfs-cluster'
 import { CarWriter } from '@ipld/car'
 import * as CBOR from '@ipld/dag-cbor'
@@ -320,6 +320,58 @@ describe('cluster.info', () => {
     const cluster = new Cluster(config.url, config)
     const info = await cluster.info()
     assertInfo(info)
+  })
+})
+
+describe('cluster.statusAll', () => {
+  it('gets status for all items', async () => {
+    const cluster = new Cluster(config.url, config)
+    const { cid } = await cluster.add(new File(['foo'], 'foo.txt'))
+
+    let found = false
+    const statuses = await cluster.statusAll()
+    for (const status of statuses) {
+      assertField(status, 'cid')
+      if (status.cid === cid) {
+        found = true
+      }
+      assert.ok(Object.entries(status.peerMap).length > 0, 'missing peers')
+      for (const [, pinInfo] of Object.entries(status.peerMap)) {
+        assertField(pinInfo, 'status')
+        assertField(pinInfo, 'name')
+      }
+    }
+
+    assert.ok(found, `added content not found in status list: ${cid}`)
+  })
+
+  it('gets filtered status', async () => {
+    const cluster = new Cluster(config.url, config)
+    // random junk - will not become pinned
+    const junkCid = 'QmNm4jsipiQysHXZW5WHbH6RqPjGBnKPkagujXTPzpZ3zo'
+    await cluster.pin(junkCid)
+
+    try {
+      let found = false
+      /** @type {import('../src/interface').TrackerStatus[]} */
+      const filter = ['pin_queued', 'pinning', 'pin_error']
+      const statuses = await cluster.statusAll({ filter })
+      for (const status of statuses) {
+        assertField(status, 'cid')
+        if (status.cid === cid) {
+          found = true
+        }
+        assert.ok(Object.entries(status.peerMap).length > 0, 'missing peers')
+        for (const [, pinInfo] of Object.entries(status.peerMap)) {
+          assertField(pinInfo, 'status')
+          assertField(pinInfo, 'name')
+        }
+      }
+
+      assert.ok(found, `added content not found in status list: ${cid}`)
+    } finally {
+      await cluster.unpin(junkCid)
+    }
   })
 })
 
