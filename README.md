@@ -195,11 +195,14 @@ for (const status of statuses) {
 // ...etc.
 ```
 
-Note: The method takes an options object that allows filtering by status e.g.
+Note: The method takes an options object that allows filtering by status or cid e.g.
 
 ```js
 // retrieve only pinning and pinned items
 await cluster.statusAll({ filter: ['pinning', 'pinned'] })
+
+// retrieve status for the passed list of CIDs
+await cluster.statusAll({ cids: ['bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'] })
 ```
 
 ### `unpin`

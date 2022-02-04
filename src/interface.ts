@@ -111,9 +111,9 @@ export type PinTypeShard = 5
  * PinType specifies which sort of Pin object we are dealing with.
  * In practice, the PinType decides how a Pin object is treated by the
  * PinTracker.
- * 
+ *
  * A sharded Pin would look like:
- * 
+ *
  * ```
  * [ Meta ] // (not pinned on IPFS, only present in cluster state)
  *   |
