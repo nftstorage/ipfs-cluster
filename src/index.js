@@ -212,28 +212,18 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
  * @param {API.StatusAllOptions} [options]
  * @returns {Promise<API.StatusResponse[]>}
  */
-export const statusAll = async (cluster, options) => {
-  options = options || {}
-
-  const endpoint = new URL('pins', cluster.url)
-  for (const filter of options.filter || []) {
-    endpoint.searchParams.append('filter', filter)
-  }
-  if (options.local) {
-    endpoint.searchParams.append('local', 'true')
-  }
-
-  const res = await fetch(endpoint.toString(), {
-    signal: options.signal,
-    headers: cluster.headers
+export const statusAll = async (
+  cluster,
+  { local, filter, cids, signal } = {}
+) => {
+  const data = await request(cluster, 'pins', {
+    params: {
+      local,
+      filter: filter ? String(filter) : null,
+      cids: cids ? String(cids) : null
+    },
+    signal
   })
-  if (!res.ok) {
-    throw Object.assign(new Error(`unexpected status: ${res.status}`), {
-      response: res
-    })
-  }
-
-  const data = await res.json()
   if (!Array.isArray(data)) {
     throw new Error('response data is not an array')
   }
@@ -552,6 +542,7 @@ const toStausResponse = (data) => {
         k,
         {
           peerName: v.peername,
+          ipfsPeerId: v.ipfs_peer_id,
           status: v.status,
           timestamp: new Date(v.timestamp),
           error: v.error
@@ -567,29 +558,24 @@ const toStausResponse = (data) => {
  */
 const getName = (file) => file.name
 
-/**
- * @param {ReadableStream<Uint8Array>} readable
- */
-const ndjsonParse = async function* (readable) {
-  const reader = readable.getReader()
-  const matcher = /\r?\n/
-  const decoder = new TextDecoder('utf8')
-  let buffer = ''
-  try {
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      const chunk = value
-      buffer += decoder.decode(chunk, { stream: true })
-      const parts = buffer.split(matcher)
-      buffer = parts.pop() || ''
-      for (const part of parts) yield JSON.parse(part)
-    }
-  } finally {
-    reader.releaseLock()
-  }
-  buffer += decoder.decode()
-  if (buffer) yield JSON.parse(buffer)
-}
+export const PinTypeBad = 1
+export const PinTypeData = 2
+export const PinTypeMeta = 3
+export const PinTypeClusterDag = 4
+export const PinTypeShard = 5
+
+export const TrackerStatusUndefined = 'undefined'
+export const TrackerStatusClusterError = 'cluster_error'
+export const TrackerStatusPinError = 'pin_error'
+export const TrackerStatusUnpinError = 'unpin_error'
+export const TrackerStatusPinned = 'pinned'
+export const TrackerStatusPinning = 'pinning'
+export const TrackerStatusUnpinning = 'unpinning'
+export const TrackerStatusUnpinned = 'unpinned'
+export const TrackerStatusRemote = 'remote'
+export const TrackerStatusPinQueued = 'pin_queued'
+export const TrackerStatusUnpinQueued = 'unpin_queued'
+export const TrackerStatusSharded = 'sharded'
+export const TrackerStatusUnexpectedlyUnpinned = 'unexpectedly_unpinned'
 
 export { API }

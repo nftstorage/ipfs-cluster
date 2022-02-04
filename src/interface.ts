@@ -78,36 +78,61 @@ export type AddCarParams = PinOptions & {
   local?: boolean
 }
 
-export enum PinType {
-  /**
-   * Bad type showing up anywhere indicates a bug
-   */
-  BAD = 1,
-  /**
-   * Data is a regular, non-sharded pin. It is pinned recursively.
-   * It has no associated reference.
-   */
-  DATA = 2,
-  /**
-   * Meta tracks the original CID of a sharded DAG. Its Reference points to the
-   * Cluster DAG CID.
-   */
-  META = 3,
-  /**
-   * ClusterDAG pins carry the CID of the root node that points to all the
-   * shard-root-nodes of the shards in which a DAG has been divided. Its
-   * Reference carries the MetaType CID.
-   * ClusterDAGType pins are pinned directly everywhere.
-   */
-  CLUSTER_DAG = 4,
-  /**
-   * Shard pins carry the root CID of a shard, which points to individual blocks
-   * on the original DAG that the user is adding, which has been sharded. They
-   * carry a Reference to the previous shard. ShardTypes are pinned with
-   * MaxDepth=1 (root and direct children only).
-   */
-  SHARD = 5
-}
+/**
+ * Bad type showing up anywhere indicates a bug
+ */
+export type PinTypeBad = 1
+/**
+ * Data is a regular, non-sharded pin. It is pinned recursively.
+ * It has no associated reference.
+ */
+export type PinTypeData = 2
+/**
+ * Meta tracks the original CID of a sharded DAG. Its Reference points to the
+ * Cluster DAG CID.
+ */
+export type PinTypeMeta = 3
+/**
+ * ClusterDAG pins carry the CID of the root node that points to all the
+ * shard-root-nodes of the shards in which a DAG has been divided. Its
+ * Reference carries the MetaType CID.
+ * ClusterDAGType pins are pinned directly everywhere.
+ */
+export type PinTypeClusterDag = 4
+/**
+ * Shard pins carry the root CID of a shard, which points to individual blocks
+ * on the original DAG that the user is adding, which has been sharded. They
+ * carry a Reference to the previous shard. ShardTypes are pinned with
+ * MaxDepth=1 (root and direct children only).
+ */
+export type PinTypeShard = 5
+
+/**
+ * PinType specifies which sort of Pin object we are dealing with.
+ * In practice, the PinType decides how a Pin object is treated by the
+ * PinTracker.
+ * 
+ * A sharded Pin would look like:
+ * 
+ * ```
+ * [ Meta ] // (not pinned on IPFS, only present in cluster state)
+ *   |
+ *   v
+ * [ Cluster DAG ] // (pinned everywhere in "direct")
+ *   |      ..  |
+ *   v          v
+ * [Shard1] .. [ShardN] // (allocated to peers and pinned with max-depth=1
+ * | | .. |    | | .. |
+ * v v .. v    v v .. v
+ * [][]..[]    [][]..[] Blocks // (indirectly pinned on ipfs, not tracked in cluster)
+ * ```
+ */
+export type PinType =
+  | PinTypeBad
+  | PinTypeData
+  | PinTypeMeta
+  | PinTypeClusterDag
+  | PinTypeShard
 
 export type PinResponse = {
   replicationFactorMin: number
@@ -150,7 +175,8 @@ export interface StatusOptions extends RequestOptions {
 }
 
 export interface StatusAllOptions extends StatusOptions {
-  filter?: TrackerStatus[]
+  filter?: FilterTrackerStatus[]
+  cids?: string[]
 }
 
 export type RecoverOptions = StatusOptions
@@ -163,63 +189,82 @@ export type StatusResponse = {
 
 export type PinInfo = {
   peerName: string
+  ipfsPeerId: string
   status: TrackerStatus
   timestamp: Date
   error: string
 }
 
-export enum TrackerStatus {
-  /**
-   * IPFSStatus should never take this value. When used as a filter. It means
-   * "all".
-   */
-  UNDEFINED = 'undefined',
-  /**
-   * The cluster node is offline or not responding.
-   */
-  CLUSTER_ERROR = 'cluster_error',
-  /**
-   * An error occurred pinning.
-   */
-  PIN_ERROR = 'pin_error',
-  /**
-   * An error occurred unpinning.
-   */
-  UNPIN_ERROR = 'unpin_error',
-  /**
-   * The IPFS daemon has pinned the item.
-   */
-  PINNED = 'pinned',
-  /**
-   * The IPFS daemon is currently pinning the item.
-   */
-  PINNING = 'pinning',
-  /**
-   * The IPFS daemon is currently unpinning the item.
-   */
-  UNPINNING = 'unpinning',
-  /**
-   * The IPFS daemon is not pinning the item.
-   */
-  UNPINNED = 'unpinned',
-  /**
-   * The IPFS daemon is not pinning the item but it is being tracked.
-   */
-  REMOTE = 'remote',
-  /**
-   * The item has been queued for pinning on the IPFS daemon.
-   */
-  PIN_QUEUED = 'pin_queued',
-  /**
-   * The item has been queued for unpinning on the IPFS daemon.
-   */
-  UNPIN_QUEUED = 'unpin_queued',
-  /**
-   * The IPFS daemon is not pinning the item through this CID but it is tracked
-   * in a cluster dag
-   */
-  SHARDED = 'sharded'
-}
+/**
+ * IPFSStatus should never be this value. When used as a filter it means "all".
+ */
+export type TrackerStatusUndefined = 'undefined'
+/**
+ * The cluster node is offline or not responding.
+ */
+export type TrackerStatusClusterError = 'cluster_error'
+/**
+ * An error occurred pinning.
+ */
+export type TrackerStatusPinError = 'pin_error'
+/**
+ * An error occurred unpinning.
+ */
+export type TrackerStatusUnpinError = 'unpin_error'
+/**
+ * The IPFS daemon has pinned the item.
+ */
+export type TrackerStatusPinned = 'pinned'
+/**
+ * The IPFS daemon is currently pinning the item.
+ */
+export type TrackerStatusPinning = 'pinning'
+/**
+ * The IPFS daemon is currently unpinning the item.
+ */
+export type TrackerStatusUnpinning = 'unpinning'
+/**
+ * The IPFS daemon is not pinning the item.
+ */
+export type TrackerStatusUnpinned = 'unpinned'
+/**
+ * The IPFS daemon is not pinning the item but it is being tracked.
+ */
+export type TrackerStatusRemote = 'remote'
+/**
+ * The item has been queued for pinning on the IPFS daemon.
+ */
+export type TrackerStatusPinQueued = 'pin_queued'
+/**
+ * The item has been queued for unpinning on the IPFS daemon.
+ */
+export type TrackerStatusUnpinQueued = 'unpin_queued'
+/**
+ * The IPFS daemon is not pinning the item through this CID but it is tracked
+ * in a cluster dag
+ */
+export type TrackerStatusSharded = 'sharded'
+/**
+ * The item is in the state and should be pinned, but it is however not pinned
+ * and not queued/pinning.
+ */
+export type TrackerStatusUnexpectedlyUnpinned = 'unexpectedly_unpinned'
+
+export type TrackerStatus =
+  | TrackerStatusClusterError
+  | TrackerStatusPinError
+  | TrackerStatusUnpinError
+  | TrackerStatusPinned
+  | TrackerStatusPinning
+  | TrackerStatusUnpinning
+  | TrackerStatusUnpinned
+  | TrackerStatusRemote
+  | TrackerStatusPinQueued
+  | TrackerStatusUnpinQueued
+  | TrackerStatusSharded
+  | TrackerStatusUnexpectedlyUnpinned
+
+export type FilterTrackerStatus = TrackerStatus | TrackerStatusUndefined
 
 export interface PeerInfo {
   id: string
