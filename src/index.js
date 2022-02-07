@@ -342,7 +342,7 @@ export class Cluster {
   }
 
   /**
-   * Import a file to the cluster. First argument must be a `File` or `Blob`.
+   * Imports a file to the cluster. First argument must be a `File` or `Blob`.
    * Note: by default this module uses v1 CIDs and raw leaves enabled.
    * @param {File|Blob} file
    * @param {API.AddParams} [options]
