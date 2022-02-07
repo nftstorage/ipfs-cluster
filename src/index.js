@@ -408,7 +408,7 @@ export class Cluster {
   }
 
   /**
-   * Status of all tracked CIDs.
+   * Status of all tracked CIDs. Note: this is an expensive operation. Use the optional filters when possible.
    * @param {API.StatusAllOptions} [options]
    * @returns {Promise<API.StatusResponse[]>}
    */

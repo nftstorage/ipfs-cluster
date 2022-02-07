@@ -173,7 +173,7 @@ for (const [clusterPeerID, pinInfo] of Object.entries(status.peerMap)) {
 
 ### `statusAll`
 
-Status of all tracked CIDs.
+Status of all tracked CIDs. Note: this is an expensive operation. Use the optional filters when possible.
 
 ```js
 const statuses = await cluster.statusAll()
@@ -201,7 +201,7 @@ Note: The method takes an options object that allows filtering by status or cid 
 // retrieve only pinning and pinned items
 await cluster.statusAll({ filter: ['pinning', 'pinned'] })
 
-// retrieve status for the passed list of CIDs
+// retrieve status for the passed list of CIDs (requires Cluster version >= 0.14.5-rc1)
 await cluster.statusAll({ cids: ['bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'] })
 ```
 
