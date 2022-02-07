@@ -204,22 +204,30 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  let peerMap = data.peer_map
-  if (peerMap) {
-    peerMap = Object.fromEntries(
-      Object.entries(peerMap).map(([k, v]) => [
-        k,
-        {
-          peerName: v.peername,
-          status: v.status,
-          timestamp: new Date(v.timestamp),
-          error: v.error
-        }
-      ])
-    )
-  }
+  return toStausResponse(data)
+}
 
-  return { cid: data.cid['/'], name: data.name, peerMap }
+/**
+ * @param {API.Config} cluster
+ * @param {API.StatusAllOptions} [options]
+ * @returns {Promise<API.StatusResponse[]>}
+ */
+export const statusAll = async (
+  cluster,
+  { local, filter, cids, signal } = {}
+) => {
+  const data = await request(cluster, 'pins', {
+    params: {
+      local,
+      filter: filter ? String(filter) : null,
+      cids: cids ? String(cids) : null
+    },
+    signal
+  })
+  if (!Array.isArray(data)) {
+    throw new Error('response data is not an array')
+  }
+  return data.map((d) => toStausResponse(d))
 }
 
 /**
@@ -250,22 +258,7 @@ export const recover = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  let peerMap = data.peer_map
-  if (peerMap) {
-    peerMap = Object.fromEntries(
-      Object.entries(peerMap).map(([k, v]) => [
-        k,
-        {
-          peerName: v.peername,
-          status: v.status,
-          timestamp: new Date(v.timestamp),
-          error: v.error
-        }
-      ])
-    )
-  }
-
-  return { cid: data.cid['/'], name: data.name, peerMap }
+  return toStausResponse(data)
 }
 
 /**
@@ -277,7 +270,6 @@ export const metricNames = (cluster, { signal } = {}) =>
   request(cluster, 'monitor/metrics', { signal })
 
 /**
- *
  * @param {API.Config} cluster
  * @param {string} path
  * @param {Object} [options]
@@ -317,6 +309,7 @@ const request = async (
 
 export class Cluster {
   /**
+   * Create a new instance of the cluster client.
    * @param {URL|string} url Cluster HTTP API root URL.
    * @param {{ headers?: Record<string, string> }} [options]
    */
@@ -332,6 +325,7 @@ export class Cluster {
   }
 
   /**
+   * Get Cluster version.
    * @param {API.RequestOptions} [options]
    */
   version(options) {
@@ -339,6 +333,7 @@ export class Cluster {
   }
 
   /**
+   * Get Cluster peer information.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<API.ClusterInfo>}
    */
@@ -347,6 +342,8 @@ export class Cluster {
   }
 
   /**
+   * Imports a file to the cluster. First argument must be a `File` or `Blob`.
+   * Note: by default this module uses v1 CIDs and raw leaves enabled.
    * @param {File|Blob} file
    * @param {API.AddParams} [options]
    */
@@ -355,6 +352,9 @@ export class Cluster {
   }
 
   /**
+   * Imports multiple files to the cluster. First argument must be an array of
+   * `File` or `Blob`. Note: by default this module uses v1 CIDs and raw leaves
+   * enabled.
    * @param {Iterable<File|Blob>} files
    * @param {API.PinOptions} [options]
    * @returns {Promise<API.AddDirectoryResponse>}
@@ -364,6 +364,10 @@ export class Cluster {
   }
 
   /**
+   * Imports blocks encoded in the given CAR file and pins them (similarly to
+   * ipfs dag import). At the moment only CAR files MUST have only one root (the
+   * one that will be pinned). . CAR files allow adding arbitrary IPLD-DAGs
+   * through the Cluster API.
    * @param {Blob} car
    * @param {API.AddParams} [options]
    * @returns {Promise<API.AddResponse>}
@@ -373,6 +377,8 @@ export class Cluster {
   }
 
   /**
+   * Tracks a CID with the given replication factor and a name for
+   * human-friendliness.
    * @param {string} cid CID or IPFS/IPNS path to pin to the cluster.
    * @param {API.PinOptions} [options]
    * @returns {Promise<API.PinResponse>}
@@ -382,6 +388,7 @@ export class Cluster {
   }
 
   /**
+   * Untracks a CID from cluster.
    * @param {string} cid CID or IPFS/IPNS path to unpin from the cluster.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<API.PinResponse>}
@@ -391,6 +398,7 @@ export class Cluster {
   }
 
   /**
+   * Returns the current IPFS state for a given CID.
    * @param {string} cid The CID to get pin status information for.
    * @param {API.StatusOptions} [options]
    * @returns {Promise<API.StatusResponse>}
@@ -400,6 +408,16 @@ export class Cluster {
   }
 
   /**
+   * Status of all tracked CIDs. Note: this is an expensive operation. Use the optional filters when possible.
+   * @param {API.StatusAllOptions} [options]
+   * @returns {Promise<API.StatusResponse[]>}
+   */
+  statusAll(options) {
+    return statusAll(this, options)
+  }
+
+  /**
+   * Returns the current allocation for a given CID.
    * @param {string} cid The CID to get pin status information for.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<API.PinResponse>}
@@ -409,6 +427,7 @@ export class Cluster {
   }
 
   /**
+   * Re-triggers pin or unpin IPFS operations for a CID in error state.
    * @param {string} cid The CID to get pin status information for.
    * @param {API.RecoverOptions} [options]
    * @returns {Promise<API.StatusResponse>}
@@ -418,6 +437,7 @@ export class Cluster {
   }
 
   /**
+   * Get a list of metric types known to the peer.
    * @param {API.RequestOptions} [options]
    * @returns {Promise<string[]>}
    */
@@ -511,10 +531,51 @@ const toPinResponse = (data) => {
 }
 
 /**
- *
+ * @param {any} data
+ * @returns {API.StatusResponse}
+ */
+const toStausResponse = (data) => {
+  let peerMap = data.peer_map
+  if (peerMap) {
+    peerMap = Object.fromEntries(
+      Object.entries(peerMap).map(([k, v]) => [
+        k,
+        {
+          peerName: v.peername,
+          ipfsPeerId: v.ipfs_peer_id,
+          status: v.status,
+          timestamp: new Date(v.timestamp),
+          error: v.error
+        }
+      ])
+    )
+  }
+  return { cid: data.cid['/'], name: data.name, peerMap }
+}
+
+/**
  * @param {File|(Blob&{name?:string})} file
- * @returns
  */
 const getName = (file) => file.name
+
+export const PinTypeBad = 1
+export const PinTypeData = 2
+export const PinTypeMeta = 3
+export const PinTypeClusterDag = 4
+export const PinTypeShard = 5
+
+export const TrackerStatusUndefined = 'undefined'
+export const TrackerStatusClusterError = 'cluster_error'
+export const TrackerStatusPinError = 'pin_error'
+export const TrackerStatusUnpinError = 'unpin_error'
+export const TrackerStatusPinned = 'pinned'
+export const TrackerStatusPinning = 'pinning'
+export const TrackerStatusUnpinning = 'unpinning'
+export const TrackerStatusUnpinned = 'unpinned'
+export const TrackerStatusRemote = 'remote'
+export const TrackerStatusPinQueued = 'pin_queued'
+export const TrackerStatusUnpinQueued = 'unpin_queued'
+export const TrackerStatusSharded = 'sharded'
+export const TrackerStatusUnexpectedlyUnpinned = 'unexpectedly_unpinned'
 
 export { API }

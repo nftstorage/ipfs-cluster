@@ -217,6 +217,7 @@ describe('cluster.pin', () => {
     assert.equal(status.cid, cid)
     for (const pinInfo of Object.values(status.peerMap)) {
       assert.ok(['pinning', 'pinned'].includes(pinInfo.status))
+      assertField(pinInfo, 'ipfsPeerId')
     }
   })
 })
@@ -323,12 +324,83 @@ describe('cluster.info', () => {
   })
 })
 
+describe('cluster.statusAll', () => {
+  it('gets all statuses', async () => {
+    const cluster = new Cluster(config.url, config)
+    const { cid } = await cluster.add(
+      new File([`test-${Date.now()}`], 'test.txt')
+    )
+
+    let found = false
+    const statuses = await cluster.statusAll()
+    for (const status of statuses) {
+      assertField(status, 'cid')
+      if (status.cid === cid) {
+        found = true
+      }
+      assert.ok(Object.entries(status.peerMap).length > 0, 'missing peers')
+      for (const [, pinInfo] of Object.entries(status.peerMap)) {
+        assertField(pinInfo, 'status')
+        assertField(pinInfo, 'peerName')
+      }
+    }
+
+    assert.ok(found, `added content not found in status list: ${cid}`)
+  })
+
+  it('gets statuses filtered by status', async () => {
+    const cluster = new Cluster(config.url, config)
+    // random junk - will not become pinned
+    const junkCid = 'QmNm4jsipiQysHXZW5WHbH6RqPjGBnKPkagujXTPzpZ3zo'
+    await cluster.pin(junkCid)
+
+    try {
+      let found = false
+      /** @type {import('@nftstorage/ipfs-cluster').API.FilterTrackerStatus[]} */
+      const filter = ['pin_queued', 'pinning', 'pin_error']
+      const statuses = await cluster.statusAll({ filter })
+      for (const status of statuses) {
+        assertField(status, 'cid')
+        if (status.cid === junkCid) {
+          found = true
+        }
+        for (const [, pinInfo] of Object.entries(status.peerMap)) {
+          assert.ok(filter.includes(pinInfo.status))
+        }
+      }
+
+      assert.ok(found, `junk CID not found in status list: ${junkCid}`)
+    } finally {
+      await cluster.unpin(junkCid)
+    }
+  })
+
+  it('gets statuses filtered by CID', async () => {
+    const cluster = new Cluster(config.url, config)
+    const f0 = await cluster.add(new File([`test0-${Date.now()}`], 'test0.txt'))
+    const f1 = await cluster.add(new File([`test1-${Date.now()}`], 'test1.txt'))
+    const f2 = await cluster.add(new File([`test2-${Date.now()}`], 'test2.txt'))
+
+    const statuses = await cluster.statusAll({ cids: [f0.cid, f1.cid] })
+    assert.equal(statuses.length, 2, 'returns status for 2 CIDs')
+    for (const status of statuses) {
+      assertField(status, 'cid')
+      assert.not.equal(status.cid, f2.cid)
+      assert.ok([f0.cid, f1.cid].includes(status.cid))
+    }
+  })
+})
+
 /**
  * @param {any} info
  * @param {string|number} key
  */
 const assertField = (info, key) => {
   const value = info[key]
-  assert.equal(typeof value, 'string', `${key} is a string`)
-  assert.ok(value.length || 0 > 0, `${key} is non empty string`)
+  assert.equal(
+    typeof value,
+    'string',
+    `expected ${key} is string but is: ${typeof value}`
+  )
+  assert.ok((value.length || 0) > 0, `${key} is not empty`)
 }
