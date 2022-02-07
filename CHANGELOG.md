@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.0.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.5.0...v4.0.0) (2022-02-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Types for `TrackerStatus` and `PinType` have changed from `enum` to string union. There are no runtime API alterations (only additions) so unless you're using those types directly in your project then you'll probably not notice any change.
+
+### Features
+
+* add statusAll method ([#35](https://www.github.com/nftstorage/ipfs-cluster/issues/35)) ([193be66](https://www.github.com/nftstorage/ipfs-cluster/commit/193be662d8a80e670fc668139699d5a72a513ff1))
+
+
+### Bug Fixes
+
+* wait longer for Cluster ready ([1d434cb](https://www.github.com/nftstorage/ipfs-cluster/commit/1d434cb61e0a14e5ef849ba04bacfa629ccc01d9))
+
 ## [3.5.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.4.3...v3.5.0) (2022-01-27)
 
 
