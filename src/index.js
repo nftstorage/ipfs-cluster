@@ -1,6 +1,8 @@
 /* eslint-env browser */
 
 import * as API from './interface.js'
+import fetch from '@web-std/fetch'
+import { FormData } from '@web-std/form-data'
 
 /**
  * Gets cluster version

@@ -202,7 +202,9 @@ Note: The method takes an options object that allows filtering by status or cid 
 await cluster.statusAll({ filter: ['pinning', 'pinned'] })
 
 // retrieve status for the passed list of CIDs (requires Cluster version >= 0.14.5-rc1)
-await cluster.statusAll({ cids: ['bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'] })
+await cluster.statusAll({
+  cids: ['bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu']
+})
 ```
 
 ### `unpin`
