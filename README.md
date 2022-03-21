@@ -144,12 +144,12 @@ Get a list of Cluster peer info.
 
 ```js
 const peers = await cluster.peerList()
-peers.forEach(peer => {
+peers.forEach((peer) => {
   console.log(`${peer.id} | ${peer.peerName}`)
   console.log('  > Addresses:')
-  peer.addresses.forEach(a => console.log(`    - ${a}`))
+  peer.addresses.forEach((a) => console.log(`    - ${a}`))
   console.log(`  > IPFS: ${peer.ipfs.id}`)
-  peer.ipfs.addresses.forEach(a => console.log(`    - ${a}`))
+  peer.ipfs.addresses.forEach((a) => console.log(`    - ${a}`))
 })
 ```
 
@@ -219,7 +219,9 @@ Note: The method takes an options object that allows filtering by status or cid 
 await cluster.statusAll({ filter: ['pinning', 'pinned'] })
 
 // retrieve status for the passed list of CIDs (requires Cluster version >= 0.14.5-rc1)
-await cluster.statusAll({ cids: ['bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu'] })
+await cluster.statusAll({
+  cids: ['bafybeigpsl667todjswabhelaxvwmk7amgg3txsv5tkcpbpj5rtrf6g7mu']
+})
 ```
 
 ### `unpin`
