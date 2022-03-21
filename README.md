@@ -42,7 +42,9 @@ Object.assign(global, { fetch, File, Blob, FormData })
 
 ## API
 
-This library is **WIP** and not _all_ cluster HTTP API methods are available yet (PR's welcome!). Please see the [typescript types](https://github.com/nftstorage/ipfs-cluster/blob/main/index.d.ts) for full parameter and return types.
+This library is **WIP** and not _all_ cluster HTTP API methods are available yet (PR's welcome!). Please see the [typescript types](https://github.com/nftstorage/ipfs-cluster/blob/main/src/interface.ts) for full parameter and return types.
+
+Note: all methods take an options object with a `signal` property - an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) from an [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) allowing the request to be aborted by the caller.
 
 - [Constructor](#constructor)
 - [`add`](#add)
@@ -52,8 +54,8 @@ This library is **WIP** and not _all_ cluster HTTP API methods are available yet
 - [`allocations`](#allocations)
 - `id`
 - `metrics`
-- [`metricNames`](#metricNames)
-- `peerList`
+- [`metricNames`](#metricnames)
+- [`peerList`](#peerlist)
 - `peerAdd`
 - `peerRemove`
 - [`pin`](#pin)
@@ -134,6 +136,21 @@ Get a list of metric types known to the peer.
 ```js
 const names = await cluster.metricNames()
 console.log(names) // [ 'ping', 'freespace' ]
+```
+
+### `peerList`
+
+Get a list of Cluster peer info.
+
+```js
+const peers = await cluster.peerList()
+peers.forEach(peer => {
+  console.log(`${peer.id} | ${peer.peerName}`)
+  console.log('  > Addresses:')
+  peer.addresses.forEach(a => console.log(`    - ${a}`))
+  console.log(`  > IPFS: ${peer.ipfs.id}`)
+  peer.ipfs.addresses.forEach(a => console.log(`    - ${a}`))
+})
 ```
 
 ### `pin`

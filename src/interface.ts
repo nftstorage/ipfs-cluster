@@ -192,7 +192,7 @@ export type PinInfo = {
   ipfsPeerId: string
   status: TrackerStatus
   timestamp: Date
-  error: string
+  error?: string
 }
 
 /**
@@ -269,9 +269,12 @@ export type FilterTrackerStatus = TrackerStatus | TrackerStatusUndefined
 export interface PeerInfo {
   id: string
   addresses: string[]
+  error?: string
 }
 
 export interface ClusterInfo extends PeerInfo {
+  id: string
+  addresses: string[]
   version: string
   commit: string
   peerName: string
@@ -279,4 +282,5 @@ export interface ClusterInfo extends PeerInfo {
   clusterPeers: string[]
   clusterPeersAddresses: string[]
   ipfs: PeerInfo
+  error?: string
 }

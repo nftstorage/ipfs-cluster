@@ -48,29 +48,7 @@ export const info = async (cluster, { signal } = {}) => {
     )
   }
 
-  const {
-    id,
-    addresses,
-    version,
-    commit,
-    peername: peerName,
-    rpc_protocol_version: rpcProtocolVersion,
-    cluster_peers: clusterPeers,
-    cluster_peers_addresses: clusterPeersAddresses,
-    ipfs
-  } = result
-
-  return {
-    id,
-    addresses,
-    version,
-    commit,
-    peerName,
-    rpcProtocolVersion,
-    clusterPeers,
-    clusterPeersAddresses,
-    ipfs
-  }
+  return toClusterInfo(result)
 }
 
 /**
@@ -271,6 +249,19 @@ export const metricNames = (cluster, { signal } = {}) =>
 
 /**
  * @param {API.Config} cluster
+ * @param {API.RequestOptions} [options]
+ * @returns {Promise<API.ClusterInfo[]>}
+ */
+export const peerList = async (cluster, options = {}) => {
+  const data = await request(cluster, 'peers', { signal: options.signal })
+  if (!Array.isArray(data)) {
+    throw new Error('unexpected response format')
+  }
+  return data.map(toClusterInfo)
+}
+
+/**
+ * @param {API.Config} cluster
  * @param {string} path
  * @param {Object} [options]
  * @param {string} [options.method]
@@ -444,6 +435,15 @@ export class Cluster {
   metricNames(options) {
     return metricNames(this, options)
   }
+
+  /**
+   * Get a list of Cluster peer info.
+   * @param {API.RequestOptions} [options]
+   * @returns {Promise<API.ClusterInfo[]>}
+   */
+  peerList(options) {
+    return peerList(this, options)
+  }
 }
 
 /**
@@ -552,6 +552,34 @@ const toStausResponse = (data) => {
   }
   return { cid: data.cid['/'], name: data.name, peerMap }
 }
+
+/**
+ * @param {any} data
+ * @returns {API.ClusterInfo}
+ */
+const toClusterInfo = ({
+  id,
+  addresses,
+  version,
+  commit,
+  peername: peerName,
+  rpc_protocol_version: rpcProtocolVersion,
+  cluster_peers: clusterPeers,
+  cluster_peers_addresses: clusterPeersAddresses,
+  ipfs,
+  error
+}) => ({
+  id,
+  addresses,
+  version,
+  commit,
+  peerName,
+  rpcProtocolVersion,
+  clusterPeers,
+  clusterPeersAddresses,
+  ipfs,
+  error
+})
 
 /**
  * @param {File|(Blob&{name?:string})} file
