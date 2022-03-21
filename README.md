@@ -147,9 +147,9 @@ const peers = await cluster.peerList()
 peers.forEach((peer) => {
   console.log(`${peer.id} | ${peer.peerName}`)
   console.log('  > Addresses:')
-  peer.addresses.forEach((a) => console.log(`    - ${a}`))
+  peer.addresses.forEach((addr) => console.log(`    - ${addr}`))
   console.log(`  > IPFS: ${peer.ipfs.id}`)
-  peer.ipfs.addresses.forEach((a) => console.log(`    - ${a}`))
+  peer.ipfs.addresses.forEach((addr) => console.log(`    - ${addr}`))
 })
 ```
 
