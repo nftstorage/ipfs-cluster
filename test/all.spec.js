@@ -288,39 +288,28 @@ describe('cluster auth', () => {
 })
 
 describe('cluster.info', () => {
-  /**
-   * @param {cluster.API.ClusterInfo} info
-   */
-  const assertInfo = (info) => {
-    assertField(info, 'id')
-    assertField(info, 'version')
-    assert.equal(typeof info.commit, 'string')
-    assertField(info, 'peerName')
-    assertField(info, 'rpcProtocolVersion')
-    assert.ok(Array.isArray(info.addresses), 'addresses is array')
-    assert.ok(Array.isArray(info.clusterPeers), 'clusterPeers is an array')
-    assert.ok(
-      Array.isArray(info.clusterPeersAddresses),
-      'clusterPeersAddresses is array'
-    )
-
-    const { ipfs } = info
-
-    assertField(ipfs, 'id')
-    assert.ok(ipfs.addresses)
-    assert.equal(typeof info.version, 'string', 'version is a string')
-    assert.ok(info.version.length > 0, 'version is non empty string')
-  }
-
   it('gets cluster id (static)', async () => {
     const info = await cluster.info(config)
     assertInfo(info)
   })
 
-  it('gets cluster version (method)', async () => {
+  it('gets cluster id (method)', async () => {
     const cluster = new Cluster(config.url, config)
     const info = await cluster.info()
     assertInfo(info)
+  })
+})
+
+describe('cluster.peerList', () => {
+  it('gets cluster peerList (static)', async () => {
+    const list = await cluster.peerList(config)
+    list.forEach(assertInfo)
+  })
+
+  it('gets cluster peerList (method)', async () => {
+    const cluster = new Cluster(config.url, config)
+    const list = await cluster.peerList()
+    list.forEach(assertInfo)
   })
 })
 
@@ -403,4 +392,28 @@ const assertField = (info, key) => {
     `expected ${key} is string but is: ${typeof value}`
   )
   assert.ok((value.length || 0) > 0, `${key} is not empty`)
+}
+
+/**
+ * @param {cluster.API.ClusterInfo} info
+ */
+const assertInfo = (info) => {
+  assertField(info, 'id')
+  assertField(info, 'version')
+  assert.equal(typeof info.commit, 'string')
+  assertField(info, 'peerName')
+  assertField(info, 'rpcProtocolVersion')
+  assert.ok(Array.isArray(info.addresses), 'addresses is array')
+  assert.ok(Array.isArray(info.clusterPeers), 'clusterPeers is an array')
+  assert.ok(
+    Array.isArray(info.clusterPeersAddresses),
+    'clusterPeersAddresses is array'
+  )
+
+  const { ipfs } = info
+
+  assertField(ipfs, 'id')
+  assert.ok(ipfs.addresses)
+  assert.equal(typeof info.version, 'string', 'version is a string')
+  assert.ok(info.version.length > 0, 'version is non empty string')
 }
