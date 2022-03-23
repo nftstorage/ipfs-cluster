@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v4.0.0...v4.1.0) (2022-03-23)
+
+
+### Features
+
+* add peerList method ([#38](https://www.github.com/nftstorage/ipfs-cluster/issues/38)) ([74dfd77](https://www.github.com/nftstorage/ipfs-cluster/commit/74dfd779329045d093267cf3a819ff9a8d73af2f))
+
 ## [4.0.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v3.5.0...v4.0.0) (2022-02-07)
 
 
