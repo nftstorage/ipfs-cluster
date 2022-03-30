@@ -182,7 +182,7 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  return toStausResponse(data)
+  return toStatusResponse(data)
 }
 
 /**
@@ -204,7 +204,7 @@ export const statusAll = async (
   })
   const statuses = []
   for await (const d of stream) {
-    statuses.push(toStausResponse(d))
+    statuses.push(toStatusResponse(d))
   }
   return statuses
 }
@@ -237,7 +237,7 @@ export const recover = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  return toStausResponse(data)
+  return toStatusResponse(data)
 }
 
 /**
@@ -572,7 +572,7 @@ const toPinResponse = (data) => {
  * @param {any} data
  * @returns {API.StatusResponse}
  */
-const toStausResponse = (data) => {
+const toStatusResponse = (data) => {
   let peerMap = data.peer_map
   if (peerMap) {
     peerMap = Object.fromEntries(
@@ -649,7 +649,7 @@ const ndjsonParse = async function* (stream) {
     reader.cancel()
     reader.releaseLock()
   }
-  buffer += decoder.decode()
+  buffer += decoder.decode(undefined, { stream: false })
   if (buffer) yield JSON.parse(buffer)
 }
 
