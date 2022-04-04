@@ -182,7 +182,7 @@ export const status = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  return toStausResponse(data)
+  return toStatusResponse(data)
 }
 
 /**
@@ -194,7 +194,7 @@ export const statusAll = async (
   cluster,
   { local, filter, cids, signal } = {}
 ) => {
-  const data = await request(cluster, 'pins', {
+  const stream = streamRequest(cluster, 'pins', {
     params: {
       local,
       filter: filter ? String(filter) : null,
@@ -202,10 +202,11 @@ export const statusAll = async (
     },
     signal
   })
-  if (!Array.isArray(data)) {
-    throw new Error('response data is not an array')
+  const statuses = []
+  for await (const d of stream) {
+    statuses.push(toStatusResponse(d))
   }
-  return data.map((d) => toStausResponse(d))
+  return statuses
 }
 
 /**
@@ -236,7 +237,7 @@ export const recover = async (cluster, cid, { local, signal } = {}) => {
     signal
   })
 
-  return toStausResponse(data)
+  return toStatusResponse(data)
 }
 
 /**
@@ -253,11 +254,12 @@ export const metricNames = (cluster, { signal } = {}) =>
  * @returns {Promise<API.ClusterInfo[]>}
  */
 export const peerList = async (cluster, options = {}) => {
-  const data = await request(cluster, 'peers', { signal: options.signal })
-  if (!Array.isArray(data)) {
-    throw new Error('unexpected response format')
+  const stream = streamRequest(cluster, 'peers', { signal: options.signal })
+  const infos = []
+  for await (const d of stream) {
+    infos.push(toClusterInfo(d))
   }
-  return data.map(toClusterInfo)
+  return infos
 }
 
 /**
@@ -296,6 +298,42 @@ const request = async (
       { response }
     )
   }
+}
+
+/**
+ * @param {API.Config} cluster
+ * @param {string} path
+ * @param {Object} init
+ * @param {string} [init.method]
+ * @param {Record<string, string|number|boolean|null|undefined>} [init.params]
+ * @param {BodyInit} [init.body]
+ * @param {AbortSignal} [init.signal]
+ */
+const streamRequest = async function* (
+  { url, headers },
+  path,
+  { method, params, body, signal }
+) {
+  const endpoint = new URL(path, url)
+  for (const [key, value] of Object.entries(params || {})) {
+    if (value != null) {
+      endpoint.searchParams.set(key, String(value))
+    }
+  }
+
+  method = method || 'GET'
+  const res = await fetch(endpoint.href, { method, headers, body, signal })
+
+  if (!res.ok) {
+    const msg = `${res.status}: ${res.statusText}`
+    throw Object.assign(new Error(msg), { response: res })
+  }
+
+  if (!res.body) {
+    throw Object.assign(new Error('Missing response body'), { response: res })
+  }
+
+  yield* ndjsonParse(res.body)
 }
 
 export class Cluster {
@@ -534,7 +572,7 @@ const toPinResponse = (data) => {
  * @param {any} data
  * @returns {API.StatusResponse}
  */
-const toStausResponse = (data) => {
+const toStatusResponse = (data) => {
   let peerMap = data.peer_map
   if (peerMap) {
     peerMap = Object.fromEntries(
@@ -585,6 +623,35 @@ const toClusterInfo = ({
  * @param {File|(Blob&{name?:string})} file
  */
 const getName = (file) => file.name
+
+/**
+ * @param {ReadableStream<Uint8Array>} stream
+ */
+const ndjsonParse = async function* (stream) {
+  const reader = stream.getReader()
+  const matcher = /\r?\n/
+  const decoder = new TextDecoder('utf8')
+  let buffer = ''
+  try {
+    while (true) {
+      const result = await reader.read()
+
+      if (result.done) {
+        break
+      }
+
+      buffer += decoder.decode(result.value, { stream: true })
+      const parts = buffer.split(matcher)
+      buffer = parts.pop() || ''
+      for (const part of parts) yield JSON.parse(part)
+    }
+  } finally {
+    reader.cancel()
+    reader.releaseLock()
+  }
+  buffer += decoder.decode(undefined, { stream: false })
+  if (buffer) yield JSON.parse(buffer)
+}
 
 export const PinTypeBad = 1
 export const PinTypeData = 2

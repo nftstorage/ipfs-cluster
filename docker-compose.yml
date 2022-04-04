@@ -44,7 +44,7 @@ services:
 
   cluster0:
     container_name: cluster0
-    image: ipfs/ipfs-cluster:v0.14.5-rc1
+    image: ipfs/ipfs-cluster:v1.0.0-rc3
     depends_on:
       - ipfs0
     environment:
@@ -79,7 +79,7 @@ services:
 
   cluster1:
     container_name: cluster1
-    image: ipfs/ipfs-cluster:v0.14.5-rc1
+    image: ipfs/ipfs-cluster:v1.0.0-rc3
     depends_on:
       - ipfs1
     environment:
@@ -105,7 +105,7 @@ services:
 
   cluster2:
     container_name: cluster2
-    image: ipfs/ipfs-cluster:v0.14.5-rc1
+    image: ipfs/ipfs-cluster:v1.0.0-rc3
     depends_on:
       - ipfs2
     environment:

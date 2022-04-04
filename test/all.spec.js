@@ -216,7 +216,10 @@ describe('cluster.pin', () => {
 
     assert.equal(status.cid, cid)
     for (const pinInfo of Object.values(status.peerMap)) {
-      assert.ok(['pinning', 'pinned'].includes(pinInfo.status))
+      assert.ok(
+        ['pinning', 'pinned'].includes(pinInfo.status),
+        `${pinInfo.status} is pinning or pinned`
+      )
       assertField(pinInfo, 'ipfsPeerId')
     }
   })
