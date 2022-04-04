@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v4.1.0...v5.0.0) (2022-04-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* The client is not compatible with Cluster pre v1.0 anymore. Note: there are no changes to the programmatic API.
+
+### Features
+
+* cluster v1.0 support ([#40](https://www.github.com/nftstorage/ipfs-cluster/issues/40)) ([fd965ad](https://www.github.com/nftstorage/ipfs-cluster/commit/fd965ad652b3243cbf6e1dbcc9c4a0a38caffea8))
+
 ## [4.1.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v4.0.0...v4.1.0) (2022-03-23)
 
 
