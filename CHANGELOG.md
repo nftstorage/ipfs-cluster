@@ -1,5 +1,12 @@
 # Changelog
 
+### [5.0.1](https://www.github.com/nftstorage/ipfs-cluster/compare/v5.0.0...v5.0.1) (2022-04-08)
+
+
+### Bug Fixes
+
+* no more object with slash for CID ([#42](https://www.github.com/nftstorage/ipfs-cluster/issues/42)) ([e078957](https://www.github.com/nftstorage/ipfs-cluster/commit/e078957a03202871f3320813f226fadf0d75fd82))
+
 ## [5.0.0](https://www.github.com/nftstorage/ipfs-cluster/compare/v4.1.0...v5.0.0) (2022-04-04)
 
 
