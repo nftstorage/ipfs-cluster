@@ -109,7 +109,7 @@ Imports multiple files to the cluster. First argument must be an array of `File`
 
 ```js
 const files = [new File(['foo'], 'foo.txt'), new File(['bar'], 'bar.txt')]
-const dir = await cluster.addDirectory(file)
+const dir = await cluster.addDirectory(files)
 
 for (const entry of dir) {
   console.log(entry.cid)
