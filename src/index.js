@@ -291,7 +291,11 @@ const request = async (
   } else {
     throw Object.assign(
       new Error(`${response.status}: ${response.statusText}`),
-      { response }
+      {
+        body: await response.text(),
+        status: response.status,
+        statusText: response.statusText,
+      }
     )
   }
 }
